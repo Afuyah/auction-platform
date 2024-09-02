@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block title %}Auction Expired{% endblock %}
+{% block content %}
+    <h2>Auction Expired</h2>
+    <p>The auction <strong>{{ auction.title }}</strong> has expired.</p>
+    <p>The winning bid was ${{ auction.current_bid }} by {{ auction.winner.username }}.</p>
+    <a href="{{ url_for('auction.index') }}" class="btn btn-primary">Return to Auctions</a>
+{% endblock %}

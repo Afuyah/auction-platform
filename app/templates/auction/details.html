@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}{{ auction.title }}{% endblock %}
+{% block content %}
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ auction.image_url }}" class="img-fluid" alt="{{ auction.title }}">
+        </div>
+        <div class="col-md-6">
+            <h2>{{ auction.title }}</h2>
+            <p>{{ auction.description }}</p>
+            <p>Current Bid: ${{ auction.current_bid }}</p>
+            <p>Auction Ends: {{ auction.end_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            
+            {% if current_user.is_authenticated %}
+                <form id="bid-form" method="POST" action="{{ url_for('bidding.place_bid', auction_id=auction.id) }}">
+                    {{ form.hidden_tag() }}
+                    <div class="form-group">
+                        {{ form.bid_amount.label(class="form-label") }}
+                        {{ form.bid_amount(class="form-control") }}
+                    </div>
+                    <button type="submit" class="btn btn-success">Place Bid</button>
+                </form>
+            {% else %}
+                <p>Please <a href="{{ url_for('auth.login') }}">login</a> to place a bid.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <hr>
+
+    <h3>Bid History</h3>
+    <ul class="list-group">
+        {% for bid in auction.bids %}
+            <li class="list-group-item">
+                ${{ bid.amount }} by {{ bid.user.username }} at {{ bid.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+            </li>
+        {% endfor %}
+    </ul>
+
+    {% block extra_js %}
+        <script>
+            $(document).ready(function(){
+                $('#bid-form').submit(function(e){
+                    e.preventDefault();
+                    $.ajax({
+                        type: 'POST',
+                        url: $(this).attr('action'),
+                        data: $(this).serialize(),
+                        success: function(response){
+                            alert(response.message);
+                            location.reload();
+                        },
+                        error: function(response){
+                            alert('Failed to place bid. Please try again.');
+                        }
+                    });
+                });
+            });
+        </script>
+    {% endblock %}
+{% endblock %}

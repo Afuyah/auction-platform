@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+    <h2>My Dashboard</h2>
+
+    <div class="row">
+        <div class="col-md-6">
+            <h3>My Auctions</h3>
+            {% if user_auctions %}
+                <ul class="list-group">
+                    {% for auction in user_auctions %}
+                        <li class="list-group-item">
+                            <a href="{{ url_for('auction.details', auction_id=auction.id) }}">{{ auction.title }}</a>
+                            <span class="badge badge-primary">Current Bid: ${{ auction.current_bid }}</span>
+                            <span class="badge badge-secondary">Ends: {{ auction.end_time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>You haven't created any auctions yet.</p>
+            {% endif %}
+            <a href="{{ url_for('auction.create') }}" class="btn btn-success mt-3">Create New Auction</a>
+        </div>
+
+        <div class="col-md-6">
+            <h3>My Bids</h3>
+            {% if user_bids %}
+                <ul class="list-group">
+                    {% for bid in user_bids %}
+                        <li class="list-group-item">
+                            <a href="{{ url_for('auction.details', auction_id=bid.auction_id) }}">{{ bid.auction.title }}</a>
+                            <span class="badge badge-success">Your Bid: ${{ bid.amount }}</span>
+                            <span class="badge badge-secondary">Placed: {{ bid.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>You haven't placed any bids yet.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

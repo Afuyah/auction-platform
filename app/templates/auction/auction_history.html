@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Auction History{% endblock %}
+{% block content %}
+    <h2>Auction History for {{ auction.title }}</h2>
+    <p>Auction started at ${{ auction.starting_bid }} and ended at ${{ auction.current_bid }}.</p>
+    
+    <h3>Bid History</h3>
+    <ul class="list-group">
+        {% for bid in auction.bids %}
+            <li class="list-group-item">
+                ${{ bid.amount }} by {{ bid.user.username }} at {{ bid.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+            </li>
+        {% endfor %}
+    </ul>
+
+    <a href="{{ url_for('auction.index') }}" class="btn btn-primary mt-4">Back to Auctions</a>
+{% endblock %}

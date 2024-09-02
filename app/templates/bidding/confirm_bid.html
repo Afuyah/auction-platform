@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Confirm Bid{% endblock %}
+{% block content %}
+    <h2>Confirm Your Bid</h2>
+    <p>You are about to place a bid of ${{ bid_amount }} on <strong>{{ auction.title }}</strong>.</p>
+    <p>This bid is binding. Do you wish to proceed?</p>
+    <form method="POST" action="{{ url_for('bidding.confirm_bid', auction_id=auction.id) }}">
+        {{ form.hidden_tag() }}
+        <button type="submit" class="btn btn-success">Confirm Bid</button>
+        <a href="{{ url_for('auction.details', auction_id=auction.id) }}" class="btn btn-secondary">Cancel</a>
+    </form>
+{% endblock %}

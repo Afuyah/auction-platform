@@ -1,0 +1,12 @@
+Flask
+flask_login 
+flask_sqlalchemy 
+flask_migrate
+flask_wtf 
+flask_mail 
+flask_babel
+requests
+flask_cors
+flask-socketio
+email-validator
+pandas
