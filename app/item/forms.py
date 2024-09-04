@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, TextAreaField, DecimalField, FileField, SubmitField
+from wtforms import StringField, TextAreaField, DecimalField, MultipleFileField, SubmitField
 from wtforms.validators import DataRequired, Optional
 
 class ItemDetailsForm(FlaskForm):
@@ -24,5 +24,5 @@ class ItemSpecificationsForm(FlaskForm):
 class ItemFinancialForm(FlaskForm):
     starting_bid = DecimalField('Starting Bid', places=2, validators=[DataRequired()])
     reserve_price = DecimalField('Reserve Price', places=2, validators=[Optional()])
-    photos = FileField('Photos', validators=[Optional()])
+    photos = MultipleFileField('Photos', validators=[Optional()])
     submit = SubmitField('Submit')

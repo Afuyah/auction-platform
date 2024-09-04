@@ -18,9 +18,10 @@ class UserRoles(db.Model):
     def __repr__(self):
         return f'<UserRoles User ID: {self.user_id}, Role ID: {self.role_id}>'
 
+
 class User(db.Model, UserMixin):
     __tablename__ = 'users'
-    
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False, index=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
@@ -28,18 +29,19 @@ class User(db.Model, UserMixin):
     active = db.Column(db.Boolean, default=False)  # For account activation status
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    
+
     # Relationships
     roles = db.relationship('Role', secondary='user_roles', backref=db.backref('users', lazy='dynamic'))
-    # Example: Additional relationships (e.g., bids, auctions) can be added here
     auctions = db.relationship('Auction', back_populates='user')
-
-
+    bids = db.relationship('Bid', back_populates='user')
     # Account Activation Token
     activation_token = db.Column(db.String(64), unique=True, nullable=True)
     # Password Reset Token
     reset_token = db.Column(db.String(64), unique=True, nullable=True)
     reset_token_expiry = db.Column(db.DateTime, nullable=True)
+
+    def __repr__(self):
+        return f'<User {self.username}>'
 
     def __init__(self, **kwargs):
         super(User, self).__init__(**kwargs)
@@ -51,13 +53,17 @@ class User(db.Model, UserMixin):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
-    
+
     def generate_token(self):
         return uuid.uuid4().hex
 
     def activate_account(self):
         self.active = True
         self.activation_token = None  # Invalidate the token after activation
+
+    @classmethod
+    def verify_activation_token(cls, token):
+        return cls.query.filter_by(activation_token=token).first()
 
     def generate_reset_token(self):
         self.reset_token = self.generate_token()
@@ -83,6 +89,7 @@ class User(db.Model, UserMixin):
         return f'<User {self.username}>'
 
     # Additional methods can be added here for account management, e.g., password reset
+
 
 class Role(db.Model):
     __tablename__ = 'roles'

@@ -10,6 +10,7 @@ from flask_socketio import SocketIO
 from flask_migrate import Migrate
 
 
+
 # Initialize extensions
 db = SQLAlchemy()
 socketio = SocketIO()
@@ -41,9 +42,10 @@ def create_app(config_class=None):
     # Register Blueprints
     from app.authentication.routes import auth_bp
     from app.auction.routes import auction_bp
-    
+    from app.user.routes import user_bp
 
     app.register_blueprint(auth_bp, url_prefix='/auth')
+    app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(auction_bp)
    
    

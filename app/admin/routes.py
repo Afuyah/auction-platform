@@ -1,38 +1,40 @@
-from flask import Blueprint, render_template, redirect, url_for, flash
-from flask_login import login_required
-from app.authentication.forms import RoleForm, PermissionForm
+from flask import Blueprint, render_template, redirect, url_for, flash, abort, request
+from flask_login import login_required, current_user
+from app.authentication.forms import RoleForm, PermissionForm, AssignRoleForm
 from app import db
-from app.authentication.models import Role, Permission
+from app.authentication.models import Role, Permission, User, Item
 from functools import wraps
-from flask import abort
-from flask_login import current_user
-
+import logging
 
 admin_bp = Blueprint('admin', __name__)
 
-
-
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def role_required(role_name):
+    """Decorator to check if the current user has the required role."""
     def decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
             if not current_user.is_authenticated or not current_user.has_role(role_name):
-                abort(403)
+                logger.warning(f"Unauthorized access attempt by {current_user.email} to {request.url}")
+                abort(403)  # Forbidden access
             return f(*args, **kwargs)
         return decorated_function
     return decorator
 
-
-
 @admin_bp.route('/roles', methods=['GET', 'POST'])
 @login_required
+@role_required('Admin')
 def manage_roles():
+    """Route to manage roles - create, list, and delete roles."""
     form = RoleForm()
     if form.validate_on_submit():
         role = Role(name=form.name.data, description=form.description.data)
         db.session.add(role)
         db.session.commit()
+        logger.info(f"Role created: {role.name}")
         flash('Role created successfully.', 'success')
         return redirect(url_for('admin.manage_roles'))
     roles = Role.query.all()
@@ -40,21 +42,27 @@ def manage_roles():
 
 @admin_bp.route('/roles/delete/<int:role_id>', methods=['POST'])
 @login_required
+@role_required('Admin')
 def delete_role(role_id):
+    """Route to delete a specific role."""
     role = Role.query.get_or_404(role_id)
     db.session.delete(role)
     db.session.commit()
+    logger.info(f"Role deleted: {role.name}")
     flash('Role deleted successfully.', 'success')
     return redirect(url_for('admin.manage_roles'))
 
 @admin_bp.route('/permissions', methods=['GET', 'POST'])
 @login_required
+@role_required('Admin')
 def manage_permissions():
+    """Route to manage permissions - create, list, and delete permissions."""
     form = PermissionForm()
     if form.validate_on_submit():
         permission = Permission(name=form.name.data, description=form.description.data)
         db.session.add(permission)
         db.session.commit()
+        logger.info(f"Permission created: {permission.name}")
         flash('Permission created successfully.', 'success')
         return redirect(url_for('admin.manage_permissions'))
     permissions = Permission.query.all()
@@ -62,35 +70,72 @@ def manage_permissions():
 
 @admin_bp.route('/permissions/delete/<int:permission_id>', methods=['POST'])
 @login_required
+@role_required('Admin')
 def delete_permission(permission_id):
+    """Route to delete a specific permission."""
     permission = Permission.query.get_or_404(permission_id)
     db.session.delete(permission)
     db.session.commit()
+    logger.info(f"Permission deleted: {permission.name}")
     flash('Permission deleted successfully.', 'success')
     return redirect(url_for('admin.manage_permissions'))
-
 
 @admin_bp.route('/assign_role', methods=['GET', 'POST'])
 @login_required
 @role_required('Admin')
 def assign_role():
+    """Route to assign a role to a user."""
     form = AssignRoleForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         role = Role.query.filter_by(name=form.role.data).first()
         if user and role:
-            user.roles.append(role)
-            db.session.commit()
-            flash('Role assigned successfully.', 'success')
+            if role not in user.roles:
+                user.roles.append(role)
+                db.session.commit()
+                logger.info(f"Role '{role.name}' assigned to user '{user.email}'")
+                flash('Role assigned successfully.', 'success')
+            else:
+                flash('User already has this role.', 'warning')
         else:
             flash('User or Role not found.', 'danger')
         return redirect(url_for('admin.manage_roles'))
     
     return render_template('assign_role.html', form=form)
-   
-
 
 @admin_bp.route('/admin-only')
+@login_required
 @role_required('Admin')
 def admin_dashboard():
+    """Route to the admin dashboard (admin-only area)."""
     return render_template('admin_dashboard.html')
+
+@admin_bp.route('/items/verify/<int:item_id>', methods=['POST'])
+@login_required
+@role_required('Admin')
+def verify_item(item_id):
+    """Route to verify an item added by a user."""
+    item = Item.query.get_or_404(item_id)
+    if item.status == 'Pending Verification':
+        item.status = 'Verified'
+        db.session.commit()
+        logger.info(f"Item '{item.title}' verified by admin '{current_user.email}'")
+        flash('Item verified successfully.', 'success')
+    else:
+        flash('Item is already verified or does not require verification.', 'warning')
+    return redirect(url_for('admin.admin_dashboard'))
+
+@admin_bp.route('/items/reject/<int:item_id>', methods=['POST'])
+@login_required
+@role_required('Admin')
+def reject_item(item_id):
+    """Route to reject an item added by a user."""
+    item = Item.query.get_or_404(item_id)
+    if item.status == 'Pending Verification':
+        item.status = 'Rejected'
+        db.session.commit()
+        logger.info(f"Item '{item.title}' rejected by admin '{current_user.email}'")
+        flash('Item rejected successfully.', 'success')
+    else:
+        flash('Item is already verified or does not require rejection.', 'warning')
+    return redirect(url_for('admin.admin_dashboard'))

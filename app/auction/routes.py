@@ -1,17 +1,20 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_required, current_user
-from .models import Auction
+from .models import Auction, Item
+from app.bidding.models import Bid
 from .forms import AuctionForm
 from app import db
 
 auction_bp = Blueprint('auction', __name__)
 
-
 @auction_bp.route('/')
 def index():
-    auctions = Auction.query.all()
-    return render_template('index.html', auctions=auctions)
-
+    try:
+        auctions = Auction.query.all()
+        return render_template('index.html', auctions=auctions)
+    except Exception as e:
+        flash(f'An error occurred: {str(e)}')
+        return render_template('index.html', auctions=[])
 
 @auction_bp.route('/create', methods=['GET', 'POST'])
 @login_required
@@ -24,18 +27,18 @@ def create_auction():
             starting_price=form.starting_price.data,
             current_price=form.starting_price.data,
             end_time=form.end_time.data,
-            status='Pending',  # Default status
-            user_id=current_user.id  # Associate with the current user
+            status='Pending',
+            user_id=current_user.id
         )
         try:
             db.session.add(auction)
             db.session.commit()
             flash('Auction created successfully and is pending approval!')
+            return redirect(url_for('auction.index'))
         except Exception as e:
             db.session.rollback()
             flash(f'An error occurred: {str(e)}')
-        return redirect(url_for('auction.index'))
-    return render_template('create_auction.html', form=form)
+    return render_template('auction/create_auction.html', form=form)
 
 @auction_bp.route('/<int:auction_id>/edit', methods=['GET', 'POST'])
 @login_required
@@ -55,11 +58,11 @@ def edit_auction(auction_id):
         try:
             db.session.commit()
             flash('Auction updated successfully!')
+            return redirect(url_for('auction.auction_detail', auction_id=auction.id))
         except Exception as e:
             db.session.rollback()
             flash(f'An error occurred: {str(e)}')
-        return redirect(url_for('auction.auction_detail', auction_id=auction.id))
-    return render_template('edit_auction.html', form=form, auction=auction)
+    return render_template('auction/edit_auction.html', form=form, auction=auction)
 
 @auction_bp.route('/<int:auction_id>/delete', methods=['POST'])
 @login_required
@@ -112,13 +115,15 @@ def deactivate_auction(auction_id):
         flash(f'An error occurred: {str(e)}')
     return redirect(url_for('auction.auction_detail', auction_id=auction.id))
 
-
-
 @auction_bp.route('/<int:auction_id>')
 def auction_detail(auction_id):
-    auction = Auction.query.get_or_404(auction_id)
-    items = Item.query.filter_by(auction_id=auction_id).all()
-    return render_template('auction/detail.html', auction=auction, items=items)
+    try:
+        auction = Auction.query.get_or_404(auction_id)
+        items = Item.query.filter_by(auction_id=auction_id).all()
+        return render_template('auction/details.html', auction=auction, items=items)
+    except Exception as e:
+        flash(f'An error occurred: {str(e)}')
+        return redirect(url_for('auction.index'))
 
 @auction_bp.route('/<int:auction_id>/finalize', methods=['POST'])
 @login_required
@@ -143,3 +148,14 @@ def finalize_auction(auction_id):
         db.session.rollback()
         flash(f'An error occurred: {str(e)}')
     return redirect(url_for('auction.auction_detail', auction_id=auction.id))
+
+@auction_bp.route('/dashboard')
+@login_required
+def dashboard():
+    user_auctions = Auction.query.filter_by(user_id=current_user.id).all()
+    user_bids = Bid.query.filter_by(user_id=current_user.id).all()
+    return render_template('dashboard.html', user_auctions=user_auctions, user_bids=user_bids)
+
+
+
+

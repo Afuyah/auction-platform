@@ -1,9 +1,17 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
-from .forms import RegistrationForm, LoginForm
-from .models import User, db
+from flask import Blueprint, render_template, redirect, url_for, flash, request, current_app
+from flask_mail import Message
+from app import mail,db  
+from .forms import RegistrationForm, LoginForm, RequestResetForm, ResetPasswordForm
+from .models import User
 from flask_login import login_user, logout_user, login_required, current_user
 
+
 auth_bp = Blueprint('auth', __name__)
+
+def send_email(subject, recipient, template, **kwargs):
+    msg = Message(subject, recipients=[recipient], sender=current_app.config['MAIL_DEFAULT_SENDER'])
+    msg.body = render_template(template, **kwargs)
+    mail.send(msg)
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -19,16 +27,27 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
+
+        # Send activation email
+        token = user.activation_token  # Corrected: Accessing the attribute directly
+        send_email(
+            'Activate Your Account',
+            user.email,
+            'email/activate_account.txt',
+            user=user,
+            token=token
+        )
+        
         flash('Your account has been created! Please check your email to activate your account.', 'success')
-        # Send activation email here with user.activation_token
         return redirect(url_for('auth.login'))
+    
     return render_template('authentication/register.html', form=form)
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('auction.index'))
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -37,25 +56,25 @@ def login():
             if user.active:
                 login_user(user, remember=form.remember_me.data)
                 next_page = request.args.get('next')
-                return redirect(next_page) if next_page else redirect(url_for('main.index'))
+                return redirect(next_page) if next_page else redirect(url_for('auction.index'))
             else:
                 flash('Account not activated. Please check your email.', 'warning')
         else:
             flash('Login unsuccessful. Please check your username and password', 'danger')
     return render_template('authentication/login.html', form=form)
 
-
 @auth_bp.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('main.index'))
-
+    return redirect(url_for('auction.index'))
 
 @auth_bp.route('/activate/<token>')
 def activate_account(token):
-    user = User.query.filter_by(activation_token=token).first_or_404()
-    if user.active:
+    user = User.verify_activation_token(token)
+    if user is None:
+        flash('Invalid or expired token', 'warning')
+    elif user.active:
         flash('Account already activated.', 'info')
     else:
         user.activate_account()
@@ -72,9 +91,14 @@ def reset_password_request():
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
         if user:
-            user.generate_reset_token()
-            db.session.commit()
-            # Send email with user.reset_token
+            token = user.get_reset_token()
+            send_email(
+                'Reset Your Password',
+                user.email,
+                'email/reset_password_request.txt',
+                user=user,
+                token=token
+            )
             flash('A password reset email has been sent.', 'info')
         return redirect(url_for('auth.login'))
     return render_template('reset_password_request.html', form=form)
@@ -84,16 +108,14 @@ def reset_password(token):
     if current_user.is_authenticated:
         return redirect(url_for('main.index'))
 
-    user = User.query.filter_by(reset_token=token).first_or_404()
-    if not user.verify_reset_token(token):
+    user = User.verify_reset_token(token)
+    if user is None:
         flash('The reset token is invalid or has expired.', 'warning')
         return redirect(url_for('auth.reset_password_request'))
 
     form = ResetPasswordForm()
     if form.validate_on_submit():
         user.set_password(form.password.data)
-        user.reset_token = None  # Invalidate the token
-        user.reset_token_expiry = None
         db.session.commit()
         flash('Your password has been updated! You can now log in.', 'success')
         return redirect(url_for('auth.login'))

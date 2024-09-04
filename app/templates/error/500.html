@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Server Error{% endblock %}
+
 {% block content %}
-    <h2>500 - Server Error</h2>
-    <p>Oops! Something went wrong on our end. Please try again later.</p>
-    <a href="{{ url_for('auction.index') }}" class="btn btn-primary">Go to Home</a>
+<div class="container mt-5 text-center">
+    <h1 class="display-1 text-danger">500</h1>
+    <h2 class="mb-4">Server Error</h2>
+    <p class="lead">Oops! Something went wrong on our end. Please try again later.</p>
+    <img src="{{ url_for('static', filename='images/server-error.png') }}" class="img-fluid mb-4" alt="Server Error">
+    <a href="{{ url_for('auction.index') }}" class="btn btn-primary btn-lg">Go to Home</a>
+</div>
 {% endblock %}

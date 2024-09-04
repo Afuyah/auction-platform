@@ -1,19 +1,118 @@
 {% extends "base.html" %}
-{% block title %}Current Auctions{% endblock %}
+{% block title %}Ongoing Auctions{% endblock %}
+
 {% block content %}
-    <h2>Ongoing Auctions</h2>
-    <div class="row">
-        {% for auction in auctions %}
-            <div class="col-md-4">
-                <div class="card mb-4">
-                    <img src="{{ auction.image_url }}" class="card-img-top" alt="{{ auction.title }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ auction.title }}</h5>
-                        <p class="card-text">Current Bid: ${{ auction.current_bid }}</p>
-                        <a href="{{ url_for('auction.details', auction_id=auction.id) }}" class="btn btn-primary">View Auction</a>
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 font-weight-bold text-primary">Welcome to the Auction Platform</h1>
+        <p class="lead text-muted">Bid on your favorite items and win amazing deals!</p>
+    </div>
+
+    {% if auctions %}
+        <div class="row">
+            {% for auction in auctions %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-sm rounded auction-card">
+                        <div class="card-img-container">
+                            {% if auction.image_url %}
+                                <img src="{{ auction.image_url }}" class="card-img-top auction-img" alt="{{ auction.title }}">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='images/default_auction.jpg') }}" class="card-img-top auction-img" alt="Default auction image">
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title font-weight-bold text-primary">{{ auction.title }}</h5>
+                            <p class="card-text">Current Bid: <span class="text-success">${{ auction.current_price }}</span></p>
+                            <a href="{{ url_for('auction.auction_detail', auction_id=auction.id) }}" class="btn btn-outline-primary btn-block">Enter The Room</a>
+                        </div>
                     </div>
                 </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center">
+            <p class="text-muted">There are no ongoing auctions at the moment. Check back later for exciting opportunities!</p>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Featured Auctions Section -->
+<div class="container-fluid mt-5 py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center font-weight-bold text-primary mb-4">Featured Auctions</h2>
+        <div id="featuredAuctionsCarousel" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+                {% for auction in featured_auctions %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <img src="{{ auction.image_url or url_for('static', filename='images/default_auction.jpg') }}" class="d-block w-100 rounded" alt="{{ auction.title }}">
+                            </div>
+                            <div class="col-md-4 d-flex align-items-center">
+                                <div>
+                                    <h3 class="text-primary">{{ auction.title }}</h3>
+                                    <p>Current Bid: ${{ auction.current_price }}</p>
+                                    <a href="{{ url_for('auction.auction_detail', auction_id=auction.id) }}" class="btn btn-primary">Bid Now</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
+            <a class="carousel-control-prev" href="#featuredAuctionsCarousel" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#featuredAuctionsCarousel" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
     </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* 3D effect for auction images */
+    .auction-img {
+        transition: transform 0.3s;
+    }
+    .auction-card:hover .auction-img {
+        transform: scale(1.1) translateZ(0);
+    }
+    
+    .card-img-container {
+        overflow: hidden;
+        border-radius: 10px;
+    }
+
+    /* Featured auction carousel */
+    .carousel-item img {
+        object-fit: cover;
+    }
+    
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-color: #007bff;
+        border-radius: 50%;
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        $('.carousel').carousel({
+            interval: 5000
+        });
+
+        // 3D hover effect for cards
+        $('.auction-card').hover(function() {
+            $(this).css('transform', 'scale(1.03)');
+        }, function() {
+            $(this).css('transform', 'scale(1)');
+        });
+    });
+</script>
 {% endblock %}
