@@ -1,7 +1,12 @@
 {% extends "base.html" %}
 {% block title %}Page Not Found{% endblock %}
+
 {% block content %}
-    <h2>404 - Page Not Found</h2>
-    <p>Sorry, the page you are looking for does not exist.</p>
-    <a href="{{ url_for('auction.index') }}" class="btn btn-primary">Go to Home</a>
+<div class="container mt-5 text-center">
+    <h1 class="display-1 text-danger">404</h1>
+    <h2 class="mb-4">Page Not Found</h2>
+    <p class="lead">Sorry, the page you are looking for does not exist.</p>
+    <img src="{{ url_for('static', filename='images/404-error.png') }}" class="img-fluid mb-4" alt="404 Error">
+    <a href="{{ url_for('auction.index') }}" class="btn btn-primary btn-lg">Go to Home</a>
+</div>
 {% endblock %}

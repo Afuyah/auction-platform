@@ -1,61 +1,114 @@
 {% extends "base.html" %}
 {% block title %}{{ auction.title }}{% endblock %}
+
 {% block content %}
+<div class="container mt-5">
     <div class="row">
         <div class="col-md-6">
-            <img src="{{ auction.image_url }}" class="img-fluid" alt="{{ auction.title }}">
+            <div class="card border-0 shadow-sm rounded">
+                <img src="{{ auction.image_url }}" class="card-img-top img-fluid rounded" alt="{{ auction.title }}">
+            </div>
         </div>
         <div class="col-md-6">
-            <h2>{{ auction.title }}</h2>
-            <p>{{ auction.description }}</p>
-            <p>Current Bid: ${{ auction.current_bid }}</p>
-            <p>Auction Ends: {{ auction.end_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
-            
-            {% if current_user.is_authenticated %}
-                <form id="bid-form" method="POST" action="{{ url_for('bidding.place_bid', auction_id=auction.id) }}">
-                    {{ form.hidden_tag() }}
-                    <div class="form-group">
-                        {{ form.bid_amount.label(class="form-label") }}
-                        {{ form.bid_amount(class="form-control") }}
-                    </div>
-                    <button type="submit" class="btn btn-success">Place Bid</button>
-                </form>
+            <h2 class="font-weight-bold">{{ auction.title }}</h2>
+            <p class="text-muted">{{ auction.description }}</p>
+            <p class="h4">Current Bid: $<span id="current-bid">{{ auction.current_price }}</span></p>
+            <p class="text-muted">Auction Ends: {{ auction.end_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+
+            {% if auction.is_active %}
+                {% if current_user.is_authenticated %}
+                    <form id="bid-form" class="mt-4">
+                        <div class="form-group">
+                            <label for="bid-amount" class="form-label">Bid Amount</label>
+                            <input type="number" id="bid-amount" name="bid_amount" class="form-control" step="0.01" min="{{ auction.current_price + 0.01 }}" required>
+                        </div>
+                        <button type="submit" id="bid-button" class="btn btn-success btn-block">Place Bid</button>
+                    </form>
+                {% else %}
+                    <p class="mt-4">Please <a href="{{ url_for('auth.login') }}">login</a> to place a bid.</p>
+                {% endif %}
             {% else %}
-                <p>Please <a href="{{ url_for('auth.login') }}">login</a> to place a bid.</p>
+                <p class="mt-4 text-danger">This auction has ended or is not active.</p>
             {% endif %}
         </div>
     </div>
 
-    <hr>
+    <hr class="my-4">
 
-    <h3>Bid History</h3>
-    <ul class="list-group">
+    <h3 class="font-weight-bold">Bid History</h3>
+    <ul id="bid-history" class="list-group">
         {% for bid in auction.bids %}
-            <li class="list-group-item">
-                ${{ bid.amount }} by {{ bid.user.username }} at {{ bid.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
-            </li>
+        <li class="list-group-item">
+            ${{ bid.amount }} by {{ bid.user.username }} at {{ bid.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
+        </li>
         {% endfor %}
     </ul>
+</div>
 
-    {% block extra_js %}
-        <script>
-            $(document).ready(function(){
-                $('#bid-form').submit(function(e){
-                    e.preventDefault();
-                    $.ajax({
-                        type: 'POST',
-                        url: $(this).attr('action'),
-                        data: $(this).serialize(),
-                        success: function(response){
-                            alert(response.message);
-                            location.reload();
-                        },
-                        error: function(response){
-                            alert('Failed to place bid. Please try again.');
-                        }
-                    });
-                });
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const socket = io();
+
+        socket.on('connect', function() {
+            const auctionId = {{ auction.id }};
+            socket.emit('join', { auction_id: auctionId });
+        });
+
+        // Handle new bid submissions
+        document.querySelector('#bid-form').onsubmit = function(event) {
+            event.preventDefault();
+            const auctionId = {{ auction.id }};
+            const bidAmount = parseFloat(document.querySelector('#bid-amount').value);
+
+            // Disable bid button to prevent multiple submissions
+            const bidButton = document.querySelector('#bid-button');
+            bidButton.disabled = true;
+            bidButton.innerText = 'Placing Bid...';
+
+            socket.emit('bid', {
+                auction_id: auctionId,
+                amount: bidAmount
             });
-        </script>
-    {% endblock %}
+        };
+
+        // Listen for new bids from other users
+        socket.on('new_bid', function(data) {
+            const bidHistory = document.querySelector('#bid-history');
+            const newBid = document.createElement('li');
+            newBid.classList.add('list-group-item');
+            newBid.textContent = `$${data.amount} by ${data.username} at ${data.timestamp}`;
+            bidHistory.insertBefore(newBid, bidHistory.firstChild);
+
+            // Update current bid display
+            document.querySelector('#current-bid').innerText = data.current_price;
+
+            // Re-enable the bid button and reset its text
+            const bidButton = document.querySelector('#bid-button');
+            bidButton.disabled = false;
+            bidButton.innerText = 'Place Bid';
+        });
+
+        // Handle errors and bid failures
+        socket.on('error', function(data) {
+            alert(data.message);
+            const bidButton = document.querySelector('#bid-button');
+            bidButton.disabled = false;
+            bidButton.innerText = 'Place Bid';
+        });
+
+        socket.on('bid_failed', function(data) {
+            alert(data.message);
+            const bidButton = document.querySelector('#bid-button');
+            bidButton.disabled = false;
+            bidButton.innerText = 'Place Bid';
+        });
+
+        socket.on('status', function(data) {
+            console.log(data.message);
+        });
+    });
+</script>
+{% endblock %}
 {% endblock %}

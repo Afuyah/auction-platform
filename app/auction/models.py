@@ -1,6 +1,9 @@
 from app import db
+from datetime import datetime
 
 class Auction(db.Model):
+    __tablename__ = 'auctions'
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     description = db.Column(db.Text, nullable=False)
@@ -12,6 +15,7 @@ class Auction(db.Model):
 
     user = db.relationship('User', back_populates='auctions')
     items = db.relationship('Item', back_populates='auction', cascade='all, delete-orphan')
+    bids = db.relationship('Bid', back_populates='auction')  # Added relationship to Bid
 
     def __repr__(self):
         return f'<Auction {self.title}>'
@@ -20,7 +24,10 @@ class Auction(db.Model):
     def is_active(self):
         return self.status == 'Active' and self.end_time > datetime.utcnow()
 
+
 class Item(db.Model):
+    __tablename__ = 'items'  # Ensure the table name is defined
+
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
@@ -37,9 +44,9 @@ class Item(db.Model):
     edition = db.Column(db.String(100))
     starting_bid = db.Column(db.Numeric(10, 2), nullable=False)
     reserve_price = db.Column(db.Numeric(10, 2))
-    auction_id = db.Column(db.Integer, db.ForeignKey('auction.id'), nullable=False)
+    auction_id = db.Column(db.Integer, db.ForeignKey('auctions.id'), nullable=False)  # Corrected foreign key reference
     photos = db.Column(db.JSON)
-
+    status = db.Column(db.String(20), default='Pending Verification')
     auction = db.relationship('Auction', back_populates='items')
 
     def __repr__(self):
