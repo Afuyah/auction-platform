@@ -1,32 +1,261 @@
 {% extends "base.html" %}
-{% block title %}Admin Dashboard{% endblock %}
+
 {% block content %}
-    <h2>Admin Dashboard</h2>
-
+<div class="container-fluid mt-4">
     <div class="row">
-        <div class="col-md-6">
-            <h3>Manage Auctions</h3>
-            <ul class="list-group">
-                {% for auction in auctions %}
-                    <li class="list-group-item">
-                        <a href="{{ url_for('auction.details', auction_id=auction.id) }}">{{ auction.title }}</a>
-                        <span class="badge badge-primary float-right">${{ auction.current_bid }}</span>
-                        <a href="{{ url_for('admin.delete_auction', auction_id=auction.id) }}" class="btn btn-danger btn-sm float-right mr-2">Delete</a>
+        <!-- Sidebar -->
+        <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light">
+            <div class="position-sticky">
+                <h4 class="text-center mb-4">Admin Dashboard</h4>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#roles">
+                            Roles
+                        </a>
                     </li>
-                {% endfor %}
-            </ul>
-        </div>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#permissions">
+                            Permissions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#users">
+                            Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#items">
+                            Items
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#auctions">
+                            Auctions
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
 
-        <div class="col-md-6">
-            <h3>Manage Users</h3>
-            <ul class="list-group">
-                {% for user in users %}
-                    <li class="list-group-item">
-                        {{ user.username }}
-                        <a href="{{ url_for('admin.delete_user', user_id=user.id) }}" class="btn btn-danger btn-sm float-right">Delete</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
+        <!-- Main Content -->
+        <main role="main" class="col-md-9 ms-sm-auto col-lg-10 px-4">
+            <!-- Roles Section -->
+            <section id="roles" class="mb-5">
+                <h2>Roles</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for role in roles %}
+                                <tr>
+                                    <td>{{ role.name }}</td>
+                                    <td>{{ role.description }}</td>
+                                    <td>
+                                        <form action="{{ url_for('admin.delete_role', role_id=role.id) }}" method="POST" style="display: inline;">
+                                            <button class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Permissions Section -->
+            <section id="permissions" class="mb-5">
+                <h2>Permissions</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for permission in permissions %}
+                                <tr>
+                                    <td>{{ permission.name }}</td>
+                                    <td>{{ permission.description }}</td>
+                                    <td>
+                                        <form action="{{ url_for('admin.delete_permission', permission_id=permission.id) }}" method="POST" style="display: inline;">
+                                            <button class="btn btn-danger btn-sm">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users" class="mb-5">
+                <h2>Users</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.email }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+
+
+{% for auction in auctions %}
+    <div class="auction-item">
+        <h3>{{ auction.title }}</h3>
+        <p>Status: {{ auction.status }}</p>
+        {% if auction.is_featured %}
+            <form action="{{ url_for('admin.unfeature_auction', auction_id=auction.id) }}" method="post">
+                {{ feature_form.csrf_token }}
+                <button type="submit" class="btn btn-warning">Remove from Featured</button>
+            </form>
+        {% else %}
+            <form action="{{ url_for('admin.feature_auction', auction_id=auction.id) }}" method="post">
+                {{ feature_form.csrf_token }}
+                <button type="submit" class="btn btn-primary">Feature Auction</button>
+            </form>
+        {% endif %}
     </div>
+{% endfor %}
+
+
+            <!-- Items Section -->
+            <section id="items" class="mb-5">
+                <h2>Items Pending Verification</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in pending_items %}
+                                <tr>
+                                    <td>{{ item.title }}</td>
+                                    <td>{{ item.description }}</td>
+                                    <td>
+                                        <form action="{{ url_for('admin.verify_item', item_id=item.id) }}" method="POST" style="display: inline;">
+                                            <button class="btn btn-success btn-sm">Verify</button>
+                                        </form>
+                                        <form action="{{ url_for('admin.reject_item', item_id=item.id) }}" method="POST" style="display: inline;">
+                                            <button class="btn btn-danger btn-sm">Reject</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>Verified Items</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in verified_items %}
+                                <tr>
+                                    <td>{{ item.title }}</td>
+                                    <td>{{ item.description }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2>Rejected Items</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in rejected_items %}
+                                <tr>
+                                    <td>{{ item.title }}</td>
+                                    <td>{{ item.description }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Auctions Section -->
+            <section id="auctions">
+                <h2>Auctions</h2>
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for auction in auctions %}
+                            <tr>
+                                <td>{{ auction.title }}</td>
+                                <td>
+                                    {% if auction.is_active %}
+                                        <span class="badge bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if not auction.is_active %}
+                                    <form action="{{ url_for('admin.activate_auction', auction_id=auction.id) }}" method="post" style="display:inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">  <!-- CSRF token -->
+                                        <button type="submit" class="btn btn-success btn-sm">Activate</button>
+                                    </form>
+                                    {% else %}
+                                    <form action="{{ url_for('admin.deactivate_auction', auction_id=auction.id) }}" method="post" style="display:inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">  <!-- CSRF token -->
+                                        <button type="submit" class="btn btn-danger btn-sm">Deactivate</button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
 {% endblock %}

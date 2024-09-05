@@ -2,9 +2,9 @@ Hi {{ user.username }},
 
 Welcome to Bha Live Auctioning!
 
-We're excited to have you on board. To get started, please activate your account by clicking the link below:
+We’re excited to have you join us. To get started, please activate your account by clicking the link below:
 
-Activate your account: {{ url_for('auth.activate_account', token=token, _external=True) }}
+[Activate your account]({{ url_for('auth.activate_account', token=token, _external=True) }})
 
 If you did not sign up for this account, please disregard this email. Your account will not be activated, and no further action is required on your part.
 
@@ -13,4 +13,4 @@ If you have any questions or need assistance, feel free to reach out to our supp
 Thank you for joining us!
 
 Best regards,
-The Bha  Team
+The Bha Team

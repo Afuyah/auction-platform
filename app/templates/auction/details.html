@@ -1,114 +1,218 @@
 {% extends "base.html" %}
-{% block title %}{{ auction.title }}{% endblock %}
+{% block title %}{{ auction.title }} - Exclusive Auction Hall{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded">
-                <img src="{{ auction.image_url }}" class="card-img-top img-fluid rounded" alt="{{ auction.title }}">
+<div class="container-fluid auction-hall mt-3">
+    <!-- 3D Room-like Layout with Luxury Design -->
+    <div class="auction-room shadow-lg rounded">
+        <div class="stage d-flex flex-column align-items-center">
+            <div class="row w-100">
+                <!-- Auction Item Image Section -->
+                <div class="col-md-6">
+                    <div class="product-card border-0 shadow-lg rounded-3d">
+                        <img src="{{ url_for('static', filename='images/default_auction.jpg') }}" class="card-img-top img-fluid rounded" alt="{{ auction.title }}">
+                    </div>
+                </div>
+
+                <!-- Auction Info Section -->
+                <div class="col-md-6">
+                    <h2 class="font-weight-bold auction-title">{{ auction.title }}</h2>
+                    <p class="text-muted auction-description">{{ auction.description }}</p>
+                    <div class="bid-details">
+                        <p class="current-bid h3 text-gold">Current Bid: $<span id="current-bid">{{ auction.current_price }}</span></p>
+                        <p class="auction-timer h4 text-warning">Ends In: <span id="auction-timer"></span></p>
+                    </div>
+
+                    {% if auction.is_active %}
+                        {% if current_user.is_authenticated %}
+                            <button id="bid-button" class="btn btn-gold btn-block btn-bid">Place Your Bid</button>
+                        {% else %}
+                            <p class="mt-4">Please <a href="{{ url_for('auth.login') }}" class="text-light">login</a> to bid.</p>
+                        {% endif %}
+                    {% else %}
+                        <p class="mt-4 text-danger">This auction is closed.</p>
+                    {% endif %}
+                </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <h2 class="font-weight-bold">{{ auction.title }}</h2>
-            <p class="text-muted">{{ auction.description }}</p>
-            <p class="h4">Current Bid: $<span id="current-bid">{{ auction.current_price }}</span></p>
-            <p class="text-muted">Auction Ends: {{ auction.end_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
 
-            {% if auction.is_active %}
-                {% if current_user.is_authenticated %}
-                    <form id="bid-form" class="mt-4">
-                        <div class="form-group">
-                            <label for="bid-amount" class="form-label">Bid Amount</label>
-                            <input type="number" id="bid-amount" name="bid_amount" class="form-control" step="0.01" min="{{ auction.current_price + 0.01 }}" required>
-                        </div>
-                        <button type="submit" id="bid-button" class="btn btn-success btn-block">Place Bid</button>
-                    </form>
-                {% else %}
-                    <p class="mt-4">Please <a href="{{ url_for('auth.login') }}">login</a> to place a bid.</p>
-                {% endif %}
-            {% else %}
-                <p class="mt-4 text-danger">This auction has ended or is not active.</p>
-            {% endif %}
-        </div>
+        <hr class="my-5 auction-divider">
+
+        <!-- Recent Bids Section -->
+        <h3 class="font-weight-bold recent-bids-title text-gold">Recent Bids</h3>
+        <ul id="bid-history" class="list-group recent-bid-list shadow" style="max-height: 250px; overflow-y: auto;">
+            {% for bid in auction.bids[-5:] %}
+            <li class="list-group-item recent-bid-item">
+                <span class="text-gold">${{ bid.amount }}</span> by <span class="text-light">{{ bid.user.username }}</span> at <span class="text-muted">{{ bid.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <!-- Winner Announcement Section -->
+        <div id="winner-announcement" class="mt-5"></div>
     </div>
-
-    <hr class="my-4">
-
-    <h3 class="font-weight-bold">Bid History</h3>
-    <ul id="bid-history" class="list-group">
-        {% for bid in auction.bids %}
-        <li class="list-group-item">
-            ${{ bid.amount }} by {{ bid.user.username }} at {{ bid.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}
-        </li>
-        {% endfor %}
-    </ul>
 </div>
+
+{% block extra_css %}
+<!-- Refined CSS for an Exclusive Auction Hall Experience -->
+<style>
+    .auction-hall {
+        background-color: #121212;
+        color: #ddd;
+        padding: 1.5rem;
+        min-height: 100vh;
+    }
+
+    .auction-room {
+        background: linear-gradient(135deg, #1c1c1c 0%, #2a2a2a 100%);
+        padding: 1.5rem;
+        border-radius: 20px;
+        perspective: 1500px;
+    }
+
+    .stage {
+        transform-style: preserve-3d;
+        animation: subtle-rotate 8s infinite alternate ease-in-out;
+    }
+
+    @keyframes subtle-rotate {
+        from { transform: rotateY(-5deg); }
+        to { transform: rotateY(5deg); }
+    }
+
+    .product-card {
+        transform: rotateY(8deg);
+        transition: transform 0.6s ease;
+    }
+
+    .product-card:hover {
+        transform: rotateY(0deg) scale(1.05);
+    }
+
+    .auction-title {
+        font-size: 2.75rem;
+        color: #ffd700;
+    }
+
+    .auction-description {
+        font-size: 1.25rem;
+        color: #bbb;
+    }
+
+    .bid-details .current-bid {
+        color: #ffd700;
+        font-size: 1.5rem;
+    }
+
+    .auction-timer {
+        color: #ffc107;
+    }
+
+    .btn-bid {
+        background-color: #ffd700;
+        color: #121212;
+        font-size: 1.25rem;
+        border-radius: 1rem;
+        padding: 0.75rem 1.5rem;
+        transition: background-color 0.3s ease, transform 0.3s ease;
+    }
+
+    .btn-bid:hover {
+        background-color: #f7c331;
+        transform: scale(1.05);
+    }
+
+    .auction-divider {
+        border-top: 2px solid #ffd700;
+        width: 80%;
+    }
+
+    .recent-bids-title {
+        font-size: 2rem;
+        margin-top: 3rem;
+        color: #ffd700;
+        border-bottom: 2px solid #ffd700;
+        padding-bottom: 1rem;
+    }
+
+    .recent-bid-list {
+        background: #1b1b1b;
+        border-radius: 10px;
+        box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.2);
+    }
+
+    .recent-bid-item {
+        color: #ddd;
+        font-size: 1.2rem;
+    }
+</style>
+{% endblock %}
 
 {% block extra_js %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/toastr@latest/build/toastr.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fireworks-js/dist/index.umd.js"></script>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const socket = io();
+document.addEventListener('DOMContentLoaded', function() {
+    const socket = io.connect();
+    const auctionId = {{ auction.id }};
+    const timerElement = document.getElementById('auction-timer');
+    const fireworks = new Fireworks.default(document.body, { sound: { enabled: true } });
+    let auctionEndTime = new Date('{{ auction.end_time }}').getTime();
+    let bidTimer;
 
-        socket.on('connect', function() {
-            const auctionId = {{ auction.id }};
-            socket.emit('join', { auction_id: auctionId });
-        });
-
-        // Handle new bid submissions
-        document.querySelector('#bid-form').onsubmit = function(event) {
-            event.preventDefault();
-            const auctionId = {{ auction.id }};
-            const bidAmount = parseFloat(document.querySelector('#bid-amount').value);
-
-            // Disable bid button to prevent multiple submissions
-            const bidButton = document.querySelector('#bid-button');
-            bidButton.disabled = true;
-            bidButton.innerText = 'Placing Bid...';
-
-            socket.emit('bid', {
-                auction_id: auctionId,
-                amount: bidAmount
-            });
-        };
-
-        // Listen for new bids from other users
-        socket.on('new_bid', function(data) {
-            const bidHistory = document.querySelector('#bid-history');
-            const newBid = document.createElement('li');
-            newBid.classList.add('list-group-item');
-            newBid.textContent = `$${data.amount} by ${data.username} at ${data.timestamp}`;
-            bidHistory.insertBefore(newBid, bidHistory.firstChild);
-
-            // Update current bid display
-            document.querySelector('#current-bid').innerText = data.current_price;
-
-            // Re-enable the bid button and reset its text
-            const bidButton = document.querySelector('#bid-button');
-            bidButton.disabled = false;
-            bidButton.innerText = 'Place Bid';
-        });
-
-        // Handle errors and bid failures
-        socket.on('error', function(data) {
-            alert(data.message);
-            const bidButton = document.querySelector('#bid-button');
-            bidButton.disabled = false;
-            bidButton.innerText = 'Place Bid';
-        });
-
-        socket.on('bid_failed', function(data) {
-            alert(data.message);
-            const bidButton = document.querySelector('#bid-button');
-            bidButton.disabled = false;
-            bidButton.innerText = 'Place Bid';
-        });
-
-        socket.on('status', function(data) {
-            console.log(data.message);
-        });
+    socket.on('connect', function() {
+        socket.emit('join', { auction_id: auctionId });
     });
+
+    // Handle Bid Placement
+    document.querySelector('#bid-button').onclick = function() {
+        socket.emit('bid', { auction_id: auctionId });
+    };
+
+    // Real-time Bid Updates
+    socket.on('bid_status', function(data) {
+        if (data.success) {
+            document.querySelector('#current-bid').innerText = data.new_bid_amount;
+            toastr.success(`New bid of $${data.new_bid_amount} placed by ${data.username}!`);
+            resetBidTimer(data.username);
+        } else {
+            toastr.error(data.message, 'Bid Failed');
+        }
+    });
+
+    // Auction Timer
+    function updateTimer() {
+        const now = new Date().getTime();
+        const timeLeft = auctionEndTime - now;
+        if (timeLeft < 0) {
+            clearInterval(auctionTimer);
+            timerElement.innerText = 'Auction has ended';
+            return;
+        }
+        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+        timerElement.innerText = `${minutes}m ${seconds}s`;
+    }
+
+    const auctionTimer = setInterval(updateTimer, 1000);
+
+    // Declare Winner
+    function resetBidTimer(username) {
+        clearTimeout(bidTimer);
+        bidTimer = setTimeout(() => declareWinner(username), 30000);
+    }
+
+    function declareWinner(username) {
+        document.getElementById('winner-announcement').innerHTML = `<h2 class="text-gold">🎉 ${username} is the winner! 🎉</h2>`;
+        fireworks.start();
+    }
+
+    socket.on('error', function(data) {
+        toastr.error(data.message, 'Error');
+    });
+});
 </script>
 {% endblock %}
 {% endblock %}

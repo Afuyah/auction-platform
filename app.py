@@ -1,6 +1,6 @@
 from app import create_app, db, socketio  
 from flask_migrate import Migrate
-
+from app.bidding import websocket
 # Create Flask app
 app = create_app()
 

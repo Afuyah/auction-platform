@@ -1,80 +1,91 @@
-from flask_socketio import SocketIO, emit, join_room
-from .models import Auction, Bid
+from decimal import Decimal
+from flask_socketio import emit, join_room
+from flask import request
+from app.auction.models import Auction
+from .models import Bid
 from flask_login import current_user
 from datetime import datetime
-from app import db
+from app import db, socketio
+import logging
+import traceback
 
-socketio = SocketIO()
+# Set up logging
+logging.basicConfig(level=logging.INFO)
 
 @socketio.on('join')
 def on_join(data):
     auction_id = data.get('auction_id')
-    
+
     if not auction_id:
         emit('error', {'message': 'Auction ID is required.'})
+        logging.error(f"Missing auction_id in join request: {data}")
         return
-    
+
     auction = Auction.query.get(auction_id)
     if not auction:
         emit('error', {'message': 'Auction not found.'})
+        logging.error(f"Auction not found for auction_id={auction_id}")
         return
 
     join_room(auction_id)
+    logging.info(f"{current_user.username} has joined auction room {auction_id}.")
+
+    # Notify the room about the new participant
     emit('status', {
         'message': f'{current_user.username} has entered the auction room.',
         'auction_id': auction_id,
-        'current_price': auction.current_price
-    }, room=auction_id)
-
-    # Notify existing users in the room that a new user has joined
-    emit('status', {
-        'message': f'{current_user.username} has joined the auction.',
-        'username': current_user.username
+        'current_price': str(auction.current_price)
     }, room=auction_id)
 
 @socketio.on('bid')
 def on_bid(data):
     auction_id = data.get('auction_id')
-    amount = data.get('amount')
 
-    if not auction_id or not isinstance(amount, (int, float)) or amount <= 0:
-        emit('error', {'message': 'Invalid bid data.'})
+    if not auction_id:
+        emit('error', {'message': 'Auction ID is required.'})
+        logging.error(f"Missing auction_id in bid request: {data}")
         return
 
     auction = Auction.query.get(auction_id)
     if not auction:
         emit('error', {'message': 'Auction not found.'})
-        return
-
-    # Ensure the bid amount is higher than the current price
-    if amount <= auction.current_price:
-        emit('bid_failed', {'message': 'Bid amount must be higher than the current price.'}, room=request.sid)
+        logging.error(f"Auction not found for auction_id={auction_id}")
         return
 
     try:
-        # Record the bid
-        bid = Bid(amount=amount, user_id=current_user.id, auction_id=auction_id)
-        auction.current_price = amount
-        db.session.add(bid)
-        db.session.commit()
+        current_price = Decimal(auction.current_price)
+        highest_bid = db.session.query(db.func.max(Bid.amount)).filter_by(auction_id=auction_id).scalar() or current_price
+        highest_bid = Decimal(highest_bid)
 
-        # Notify all users in the auction room of the new bid
-        emit('new_bid', {
-            'amount': amount,
+        increment = Decimal('0.10')  # 10% increment
+        new_bid_amount = highest_bid + (highest_bid * increment)
+
+        if current_price >= new_bid_amount:
+            emit('bid_status', {
+                'success': False,
+                'message': 'Bid amount must be higher than the current price.',
+                'current_price': str(current_price)
+            }, room=request.sid)
+            return
+
+        # Start the transaction
+        bid = Bid(amount=new_bid_amount, user_id=current_user.id, auction_id=auction_id)
+        auction.current_price = new_bid_amount
+        
+        # Add the new bid and update the auction price
+        db.session.add(bid)
+        db.session.commit()  # Commit the changes
+
+        # Emit the success response to the auction room
+        emit('bid_status', {
+            'success': True,
+            'message': 'Bid placed successfully!',
+            'new_bid_amount': str(new_bid_amount),
             'username': current_user.username,
-            'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S'),
-            'current_price': auction.current_price
+            'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
         }, room=auction_id)
 
-        # Optionally, notify the current user of their successful bid
-        emit('status', {
-            'message': f'Your bid of {amount} was successful!',
-            'username': current_user.username,
-            'current_price': auction.current_price
-        }, room=request.sid)
-
     except Exception as e:
-        # Rollback the session in case of an error
-        db.session.rollback()
-        emit('error', {'message': 'An error occurred while processing your bid.'})
-
+        db.session.rollback()  # Rollback the transaction if something goes wrong
+        logging.error(f"Error processing bid: {traceback.format_exc()}")
+        emit('error', {'message': 'An error occurred while placing the bid.'})

@@ -4,17 +4,27 @@ from .models import Auction, Item
 from app.bidding.models import Bid
 from .forms import AuctionForm
 from app import db
+from sqlalchemy.sql import and_
+from datetime import datetime
 
 auction_bp = Blueprint('auction', __name__)
 
-@auction_bp.route('/')
-def index():
+@auction_bp.route('/', defaults={'view': 'all'})
+@auction_bp.route('/<view>')
+def index(view):
     try:
-        auctions = Auction.query.all()
-        return render_template('index.html', auctions=auctions)
+        if view == 'featured':
+            # Fetch only featured auctions
+            featured_auctions = Auction.query.filter_by(is_featured=True).all()
+            return render_template('featured_auctions.html', featured_auctions=featured_auctions)
+        else:
+            # Fetch all auctions
+            auctions = Auction.query.all()
+            return render_template('index.html', auctions=auctions)
     except Exception as e:
-        flash(f'An error occurred: {str(e)}')
+        flash(f'An error occurred: {str(e)}', 'danger')
         return render_template('index.html', auctions=[])
+
 
 @auction_bp.route('/create', methods=['GET', 'POST'])
 @login_required
@@ -33,11 +43,11 @@ def create_auction():
         try:
             db.session.add(auction)
             db.session.commit()
-            flash('Auction created successfully and is pending approval!')
+            flash('Auction created successfully and is pending approval!', 'success')
             return redirect(url_for('auction.index'))
         except Exception as e:
             db.session.rollback()
-            flash(f'An error occurred: {str(e)}')
+            flash(f'An error occurred: {str(e)}', 'danger')
     return render_template('auction/create_auction.html', form=form)
 
 @auction_bp.route('/<int:auction_id>/edit', methods=['GET', 'POST'])
@@ -45,7 +55,7 @@ def create_auction():
 def edit_auction(auction_id):
     auction = Auction.query.get_or_404(auction_id)
     if auction.user_id != current_user.id and not current_user.is_admin:
-        flash('You do not have permission to edit this auction.')
+        flash('You do not have permission to edit this auction.', 'warning')
         return redirect(url_for('auction.index'))
     
     form = AuctionForm(obj=auction)
@@ -57,11 +67,11 @@ def edit_auction(auction_id):
         auction.end_time = form.end_time.data
         try:
             db.session.commit()
-            flash('Auction updated successfully!')
+            flash('Auction updated successfully!', 'success')
             return redirect(url_for('auction.auction_detail', auction_id=auction.id))
         except Exception as e:
             db.session.rollback()
-            flash(f'An error occurred: {str(e)}')
+            flash(f'An error occurred: {str(e)}', 'danger')
     return render_template('auction/edit_auction.html', form=form, auction=auction)
 
 @auction_bp.route('/<int:auction_id>/delete', methods=['POST'])
@@ -69,51 +79,17 @@ def edit_auction(auction_id):
 def delete_auction(auction_id):
     auction = Auction.query.get_or_404(auction_id)
     if auction.user_id != current_user.id and not current_user.is_admin:
-        flash('You do not have permission to delete this auction.')
+        flash('You do not have permission to delete this auction.', 'warning')
         return redirect(url_for('auction.index'))
 
     try:
         db.session.delete(auction)
         db.session.commit()
-        flash('Auction deleted successfully!')
+        flash('Auction deleted successfully!', 'success')
     except Exception as e:
         db.session.rollback()
-        flash(f'An error occurred: {str(e)}')
+        flash(f'An error occurred: {str(e)}', 'danger')
     return redirect(url_for('auction.index'))
-
-@auction_bp.route('/<int:auction_id>/activate', methods=['POST'])
-@login_required
-def activate_auction(auction_id):
-    auction = Auction.query.get_or_404(auction_id)
-    if not current_user.is_admin:
-        flash('You do not have permission to activate this auction.')
-        return redirect(url_for('auction.index'))
-    
-    auction.status = 'Active'
-    try:
-        db.session.commit()
-        flash('Auction activated and open for bidding!')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'An error occurred: {str(e)}')
-    return redirect(url_for('auction.auction_detail', auction_id=auction.id))
-
-@auction_bp.route('/<int:auction_id>/deactivate', methods=['POST'])
-@login_required
-def deactivate_auction(auction_id):
-    auction = Auction.query.get_or_404(auction_id)
-    if not current_user.is_admin:
-        flash('You do not have permission to deactivate this auction.')
-        return redirect(url_for('auction.index'))
-    
-    auction.status = 'Inactive'
-    try:
-        db.session.commit()
-        flash('Auction deactivated!')
-    except Exception as e:
-        db.session.rollback()
-        flash(f'An error occurred: {str(e)}')
-    return redirect(url_for('auction.auction_detail', auction_id=auction.id))
 
 @auction_bp.route('/<int:auction_id>')
 def auction_detail(auction_id):
@@ -122,7 +98,7 @@ def auction_detail(auction_id):
         items = Item.query.filter_by(auction_id=auction_id).all()
         return render_template('auction/details.html', auction=auction, items=items)
     except Exception as e:
-        flash(f'An error occurred: {str(e)}')
+        flash(f'An error occurred: {str(e)}', 'danger')
         return redirect(url_for('auction.index'))
 
 @auction_bp.route('/<int:auction_id>/finalize', methods=['POST'])
@@ -130,23 +106,23 @@ def auction_detail(auction_id):
 def finalize_auction(auction_id):
     auction = Auction.query.get_or_404(auction_id)
     if auction.user_id != current_user.id and not current_user.is_admin:
-        flash('You do not have permission to finalize this auction.')
+        flash('You do not have permission to finalize this auction.', 'warning')
         return redirect(url_for('auction.index'))
 
     try:
         for item in auction.items:
-            highest_bid = get_highest_bid(item)  # Implement this function based on your bidding logic
+            highest_bid = get_highest_bid(item)  # Ensure this function is defined
             if item.reserve_price and highest_bid < item.reserve_price:
                 item.status = 'Unsold'
-                flash(f'Item {item.title} did not meet the reserve price and was not sold.')
+                flash(f'Item {item.title} did not meet the reserve price and was not sold.', 'warning')
             else:
                 item.status = 'Sold'
-                flash(f'Item {item.title} was sold for ${highest_bid}.')
+                flash(f'Item {item.title} was sold for ${highest_bid}.', 'success')
         db.session.commit()
-        flash('Auction finalized!')
+        flash('Auction finalized!', 'success')
     except Exception as e:
         db.session.rollback()
-        flash(f'An error occurred: {str(e)}')
+        flash(f'An error occurred: {str(e)}', 'danger')
     return redirect(url_for('auction.auction_detail', auction_id=auction.id))
 
 @auction_bp.route('/dashboard')
@@ -156,6 +132,24 @@ def dashboard():
     user_bids = Bid.query.filter_by(user_id=current_user.id).all()
     return render_template('dashboard.html', user_auctions=user_auctions, user_bids=user_bids)
 
+@auction_bp.route('/ongoing-auctions')
+def ongoing_auctions():
+    # Fetch ongoing auctions directly
+    auctions = Auction.query.filter(
+        and_(
+            Auction.status == 'Active',
+            Auction.end_time > datetime.utcnow()
+        )
+    ).all()
+    return render_template('auction/ongoing_auctions.html', auctions=auctions)
 
-
+@auction_bp.route('/featured')
+def featured_auctions():
+    try:
+        # Fetch all featured auctions
+        featured_auctions = Auction.query.filter_by(is_featured=True).all()
+        return render_template('index.html', featured_auctions=featured_auctions)
+    except Exception as e:
+        flash(f'An error occurred: {str(e)}', 'danger')
+        return render_template('index.html', featured_auctions=[])
 

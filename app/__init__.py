@@ -43,11 +43,16 @@ def create_app(config_class=None):
     from app.authentication.routes import auth_bp
     from app.auction.routes import auction_bp
     from app.user.routes import user_bp
+    from app.item.routes import item_bp
+    from app.admin.routes import admin_bp
 
+    
     app.register_blueprint(auth_bp, url_prefix='/auth')
     app.register_blueprint(user_bp, url_prefix='/user')
     app.register_blueprint(auction_bp)
-   
+    app.register_blueprint(item_bp, url_prefix='/item')
+    app.register_blueprint(admin_bp, url_prefix='/admin')
+    
    
     # Session handling and cookie settings
     app.config['SESSION_COOKIE_HTTPONLY'] = True

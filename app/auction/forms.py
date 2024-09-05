@@ -8,3 +8,6 @@ class AuctionForm(FlaskForm):
     starting_price = DecimalField('Starting Price', validators=[DataRequired(), NumberRange(min=0)])
     end_time = DateTimeField('End Time', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
     submit = SubmitField('Submit')
+
+class FeatureForm(FlaskForm):
+    submit = SubmitField('Submit')

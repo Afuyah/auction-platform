@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Ongoing Auctions{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="display-4 font-weight-bold text-primary">Ongoing Auctions</h1>
+        <p class="lead text-muted">Bid on your favorite items and discover incredible deals!</p>
+    </div>
+
+    {% if auctions %}
+        <div class="row">
+            {% for auction in auctions %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 border-0 shadow-lg rounded auction-card">
+                        <div class="card-img-container">
+                            {% if auction.image_url %}
+                                <img src="{{ auction.image_url }}" class="card-img-top auction-img" alt="{{ auction.title }}">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='images/default_auction.jpg') }}" class="card-img-top auction-img" alt="Default auction image">
+                            {% endif %}
+                        </div>
+                        <div class="card-body text-center">
+                            <h5 class="card-title font-weight-bold text-primary">{{ auction.title }}</h5>
+                            <p class="card-text mb-3">Current Bid: <span class="text-success font-weight-bold">${{ auction.current_price }}</span></p>
+                            <a href="{{ url_for('auction.auction_detail', auction_id=auction.id) }}" class="btn btn-primary btn-lg btn-block rounded-pill shadow-sm">Enter The Room</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center">
+            <p class="text-muted lead">There are no ongoing auctions at the moment. Check back later for exciting opportunities!</p>
+        </div>
+    {% endif %}
+   
+</div>
+{% endblock %}
