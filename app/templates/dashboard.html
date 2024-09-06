@@ -3,141 +3,68 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4 text-center">My Dashboard</h2>
+    <h2 class="mb-4 text-center">User Portal</h2>
 
     <div class="row">
        <!-- My Auctions Section -->
-<div class="col-md-12 col-lg-6 mb-4">
-    <div class="card border-0 shadow-sm rounded">
-        <div class="card-header bg-primary text-white border-bottom">
-            <h3 class="card-title mb-0"><i class="fas fa-gavel"></i> My Auctions</h3>
-        </div>
-        <div class="card-body">
-            {% if user_auctions %}
-                <div class="auction-list">
-                    <ul class="list-group list-group-flush">
-                        {% for auction in user_auctions %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <a href="{{ url_for('auction.auction_detail', auction_id=auction.id) }}" class="text-dark text-decoration-none">{{ auction.title }}</a>
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-success me-2"><i class="fas fa-dollar-sign"></i> ${{ auction.current_price }}</span>
-                                    <span class="badge bg-warning text-dark me-2"><i class="fas fa-clock"></i> Ends: {{ auction.end_time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
-                                    <span class="badge bg-info" id="timer-{{ auction.id }}"></span> <!-- Countdown timer placeholder -->
-                                </div>
-                            </li>
-                        {% endfor %}
-                    </ul>
+        <div class="col-md-12 col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm rounded">
+                <div class="card-header bg-primary text-white border-bottom">
+                    <h3 class="card-title mb-0"><i class="fas fa-gavel"></i> My Auctions</h3>
                 </div>
-            {% else %}
-                <p class="text-muted">You haven't created any auctions yet.</p>
-            {% endif %}
-            <a href="{{ url_for('auction.create_auction') }}" class="btn btn-primary mt-3">Create New Auction</a>
+                <div class="card-body">
+                    {% if user_auctions %}
+                        <div class="auction-list">
+                            <ul class="list-group list-group-flush">
+                                {% for auction in user_auctions %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <a href="{{ url_for('auction.auction_detail', auction_id=auction.id) }}" class="text-dark text-decoration-none">{{ auction.title }}</a>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-success me-2"><i class="fas fa-dollar-sign"></i> ${{ auction.current_price }}</span>
+                                            <span class="badge bg-warning text-dark me-2"><i class="fas fa-clock"></i> Ends: {{ auction.end_time.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                                            <span class="badge bg-info" id="timer-{{ auction.id }}"></span> <!-- Countdown timer placeholder -->
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">You haven't created any auctions yet.</p>
+                    {% endif %}
+                    <a href="{{ url_for('auction.create_auction') }}" class="btn btn-primary mt-3">Create New Auction</a>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-
 
         <!-- My Bids Section -->
-<div class="col-md-12 col-lg-6 mb-4">
-    <div class="card border-0 shadow-sm rounded">
-        <div class="card-header bg-success text-white border-bottom">
-            <h3 class="card-title mb-0"><i class="fas fa-dollar-sign"></i> My Bids</h3>
-        </div>
-        <div class="card-body">
-            {% if user_bids %}
-                <div class="scrollable-panel">
-                    <ul class="list-group list-group-flush">
-                        {% for bid in user_bids[:5] %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <a href="{{ url_for('auction.auction_detail', auction_id=bid.auction_id) }}" class="text-dark text-decoration-none">{{ bid.auction.title }}</a>
-                                <div class="d-flex align-items-center">
-                                    <span class="badge bg-info text-light me-2"><i class="fas fa-dollar-sign"></i> ${{ bid.amount }}</span>
-                                    <span class="badge bg-secondary text-light"><i class="fas fa-clock"></i> Placed: {{ bid.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</span>
-                                </div>
-                            </li>
-                        {% endfor %}
-                    </ul>
+        <div class="col-md-12 col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm rounded">
+                <div class="card-header bg-success text-white border-bottom">
+                    <h3 class="card-title mb-0"><i class="fas fa-dollar-sign"></i> My Bids</h3>
                 </div>
-            {% else %}
-                <p class="text-muted">You haven't placed any bids yet.</p>
-            {% endif %}
+                <div class="card-body">
+                    {% if user_bids %}
+                        <div class="scrollable-panel">
+                            <ul class="list-group list-group-flush">
+                                {% for bid in user_bids[:5] %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <a href="{{ url_for('auction.auction_detail', auction_id=bid.auction_id) }}" class="text-dark text-decoration-none">{{ bid.auction.title }}</a>
+                                        <div class="d-flex align-items-center">
+                                            <span class="badge bg-info text-light me-2"><i class="fas fa-dollar-sign"></i> ${{ bid.amount }}</span>
+                                            <span class="badge bg-secondary text-light"><i class="fas fa-clock"></i> Placed: {{ bid.timestamp.strftime('%Y-%m-%d %H:%M:%S') }}</span>
+                                        </div>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% else %}
+                        <p class="text-muted">You haven't placed any bids yet.</p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
-    </div>
-</div>
-<style>
 
-    
-    .auction-list {
-        background: #f8f9fa;
-        border-radius: 0.25rem;
-        padding: 1rem;
-    }
-
-    .auction-list::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .auction-list::-webkit-scrollbar-thumb {
-        background-color: #ccc;
-        border-radius: 10px;
-    }
-
-    .auction-list::-webkit-scrollbar-track {
-        background: #f8f9fa;
-    }
-
-    .list-group-item {
-        border-left: 3px solid transparent;
-        transition: border-color 0.3s ease;
-    }
-
-    .list-group-item:hover {
-        border-left-color: #007bff; /* Highlight color */
-    }
-
-    .card-body {
-        padding: 1rem;
-    }
-
-    .badge {
-        font-size: 0.9rem;
-    }
-
-    
-    
-    .scrollable-panel {
-        max-height: 300px; /* Adjust based on your design needs */
-        overflow-y: auto;
-        background: #f8f9fa;
-        border-radius: 0.25rem;
-        box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
-        padding: 1rem;
-    }
-
-    .scrollable-panel::-webkit-scrollbar {
-        width: 8px;
-    }
-
-    .scrollable-panel::-webkit-scrollbar-thumb {
-        background-color: #ccc;
-        border-radius: 10px;
-    }
-
-    .scrollable-panel::-webkit-scrollbar-track {
-        background: #f8f9fa;
-    }
-
-    .list-group-item {
-        border-left: 3px solid transparent;
-        transition: border-color 0.3s ease;
-    }
-
-    .list-group-item:hover {
-        border-left-color: #28a745; /* Highlight color */
-    }
-
-</style>
-        <!-- Recent Bids Panel -->
+        <!-- Recent Bids Section -->
         <div class="col-md-12 col-lg-6 mb-4">
             <div class="card border-0 shadow-sm rounded">
                 <div class="card-header bg-info text-white border-bottom">
@@ -150,13 +77,59 @@
                 </div>
             </div>
         </div>
-
     </div>
 </div>
 
-<!-- Toastr for Notifications -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+<style>
+    .auction-list, .scrollable-panel {
+        background: #f8f9fa;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    .scrollable-panel::-webkit-scrollbar, .auction-list::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .scrollable-panel::-webkit-scrollbar-thumb, .auction-list::-webkit-scrollbar-thumb {
+        background-color: #ccc;
+        border-radius: 10px;
+    }
+
+    .list-group-item {
+        border-left: 3px solid transparent;
+        transition: border-color 0.3s ease;
+    }
+
+    .list-group-item:hover {
+        border-left-color: #28a745; /* Consistent highlight color */
+    }
+
+    .badge {
+        font-size: 0.9rem;
+    }
+
+    .card {
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+        transform: scale(1.02);
+    }
+
+    .btn-primary, .btn-success, .btn-info {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+
+    .btn-primary:hover, .btn-success:hover, .btn-info:hover {
+        background-color: #0056b3;
+    }
+</style>
 
 <script>
 // Example of adding new recent bids (via WebSocket or AJAX)
@@ -180,15 +153,5 @@ function addRecentBid(bidInfo) {
     // Display Toastr notification
     toastr.success(`New bid placed by ${bidInfo.username} for $${bidInfo.amount}`);
 }
-
-// Example WebSocket or AJAX logic to receive live bid updates
-// Uncomment and implement as needed
-/*
-let ws = new WebSocket("wss://yourserver/auction");
-ws.onmessage = function(event) {
-    let bidInfo = JSON.parse(event.data);
-    addRecentBid(bidInfo);
-};
-*/
 </script>
 {% endblock %}

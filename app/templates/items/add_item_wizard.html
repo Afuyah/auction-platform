@@ -3,11 +3,11 @@
 
 {% block content %}
 <div class="container mt-4">
-    <h2 class="mb-4">Add New Item - Step {{ step }} of 3</h2>
-    
+    <h2 class="mb-4 text-center">Add New Item - Step {{ step }} of 3</h2>
+
     <!-- Progress Bar -->
     <div class="progress mb-4">
-        <div class="progress-bar" role="progressbar" style="width: {{ step|int * 33.33 }}%;" aria-valuenow="{{ step|int * 33.33 }}" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar bg-success" role="progressbar" style="width: {{ step|int * 33.33 }}%;" aria-valuenow="{{ step|int * 33.33 }}" aria-valuemin="0" aria-valuemax="100">
             Step {{ step }} of 3
         </div>
     </div>
@@ -16,16 +16,16 @@
     <div class="step-indicators mb-4">
         <div class="row">
             <div class="col text-center {% if step >= 1 %}font-weight-bold{% endif %}">
-                <div class="circle {% if step >= 1 %}bg-primary text-white{% else %}bg-light{% endif %}">1</div>
-                <p>Item Details</p>
+                <div class="circle {% if step >= 1 %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">1</div>
+                <p class="{% if step >= 1 %}text-primary{% endif %}">Item Details</p>
             </div>
             <div class="col text-center {% if step >= 2 %}font-weight-bold{% endif %}">
-                <div class="circle {% if step >= 2 %}bg-primary text-white{% else %}bg-light{% endif %}">2</div>
-                <p>Item Specifications</p>
+                <div class="circle {% if step >= 2 %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">2</div>
+                <p class="{% if step >= 2 %}text-primary{% endif %}">Item Specifications</p>
             </div>
             <div class="col text-center {% if step >= 3 %}font-weight-bold{% endif %}">
-                <div class="circle {% if step >= 3 %}bg-primary text-white{% else %}bg-light{% endif %}">3</div>
-                <p>Financial Details</p>
+                <div class="circle {% if step >= 3 %}bg-primary text-white{% else %}bg-light text-dark{% endif %}">3</div>
+                <p class="{% if step >= 3 %}text-primary{% endif %}">Financial Details</p>
             </div>
         </div>
     </div>
@@ -35,105 +35,102 @@
 
         <!-- Step 1: Item Details -->
         {% if step == 1 %}
-            <div class="form-group">
+            <div class="form-group mb-3">
                 {{ form.title.label(class="form-label") }}
                 {{ form.title(class="form-control", placeholder="Enter the item title") }}
                 {% for error in form.title.errors %}
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 {{ form.description.label(class="form-label") }}
                 {{ form.description(class="form-control", rows=4, placeholder="Enter a detailed description of the item") }}
                 {% for error in form.description.errors %}
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 {{ form.category.label(class="form-label") }}
                 {{ form.category(class="form-control", placeholder="Select a category") }}
                 {% for error in form.category.errors %}
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 {{ form.type.label(class="form-label") }}
                 {{ form.type(class="form-control", placeholder="Select the type") }}
                 {% for error in form.type.errors %}
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 {{ form.condition.label(class="form-label") }}
                 {{ form.condition(class="form-control", placeholder="Select the condition") }}
                 {% for error in form.condition.errors %}
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-            <!-- Add other fields from ItemDetailsForm as needed -->
 
         {% elif step == 2 %}
             <!-- Step 2: Item Specifications -->
-            <div class="form-group">
+            <div class="form-group mb-3">
                 {{ form.dimensions.label(class="form-label") }}
                 {{ form.dimensions(class="form-control", placeholder="Enter dimensions") }}
                 {% for error in form.dimensions.errors %}
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 {{ form.material.label(class="form-label") }}
                 {{ form.material(class="form-control", placeholder="Enter the material") }}
                 {% for error in form.material.errors %}
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 {{ form.rarity.label(class="form-label") }}
                 {{ form.rarity(class="form-control", placeholder="Enter the rarity") }}
                 {% for error in form.rarity.errors %}
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 {{ form.edition.label(class="form-label") }}
                 {{ form.edition(class="form-control", placeholder="Enter the edition") }}
                 {% for error in form.edition.errors %}
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-            <!-- Add other fields from ItemSpecificationsForm as needed -->
 
         {% elif step == 3 %}
             <!-- Step 3: Financial Details -->
-            <div class="form-group">
+            <div class="form-group mb-3">
                 {{ form.starting_bid.label(class="form-label") }}
                 {{ form.starting_bid(class="form-control", placeholder="Enter the starting bid") }}
                 {% for error in form.starting_bid.errors %}
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 {{ form.reserve_price.label(class="form-label") }}
                 {{ form.reserve_price(class="form-control", placeholder="Enter the reserve price") }}
                 {% for error in form.reserve_price.errors %}
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-            <div class="form-group">
+            <div class="form-group mb-3">
                 {{ form.photos.label(class="form-label") }}
                 {{ form.photos(class="form-control-file") }}
                 {% for error in form.photos.errors %}
                     <div class="text-danger">{{ error }}</div>
                 {% endfor %}
             </div>
-            <!-- Add other fields from ItemFinancialForm as needed -->
         {% endif %}
 
         <!-- Navigation Buttons -->
         <div class="d-flex justify-content-between mt-4">
             {% if step > 1 %}
-                <a href="{{ url_for('item.add_item', step=step-1) }}" class="btn btn-secondary">Previous</a>
+                <a href="{{ url_for('item.add_item', step=step-1) }}" class="btn btn-outline-secondary">Previous</a>
             {% endif %}
             <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
         </div>
@@ -146,6 +143,7 @@
     .progress-bar {
         transition: width 0.6s ease;
     }
+
     .step-indicators .circle {
         display: inline-block;
         width: 40px;
@@ -155,11 +153,35 @@
         text-align: center;
         margin-bottom: 10px;
     }
+
     .step-indicators .bg-primary {
         background-color: #007bff !important;
     }
+
     .step-indicators .bg-light {
         background-color: #f8f9fa !important;
+    }
+
+    .text-center p {
+        margin-top: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .btn {
+        padding: 10px 20px;
+    }
+
+    .btn-outline-secondary {
+        border-color: #6c757d;
+        color: #6c757d;
+    }
+
+    .btn-outline-secondary:hover {
+        background-color: #6c757d;
+        color: #fff;
     }
 </style>
 {% endblock %}
@@ -167,11 +189,11 @@
 {% block scripts %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Example: Enable the submit button only when all required fields are filled
+        // Real-time validation for required fields
         const form = document.querySelector('form');
         const submitButton = form.querySelector('button[type="submit"]');
         const requiredFields = form.querySelectorAll('input[required], textarea[required]');
-        
+
         requiredFields.forEach(field => {
             field.addEventListener('input', function() {
                 let allFilled = true;

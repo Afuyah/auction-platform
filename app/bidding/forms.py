@@ -7,8 +7,7 @@ class BidForm(FlaskForm):
     amount = DecimalField('Bid Amount', places=2, validators=[DataRequired(), NumberRange(min=0)])
     submit = SubmitField('Place Bid')
     
-    
-   c          auction_id = None  # Placeholder; adjust based on how you manage auction_id
+    auction_id = None  # Placeholder; adjust based on how you manage auction_id
 
     def __init__(self, *args, **kwargs):
         self.auction_id = kwargs.pop('auction_id', None)

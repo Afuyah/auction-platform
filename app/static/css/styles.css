@@ -8,6 +8,7 @@ body {
     padding-bottom: 60px; /* Adjust padding-bottom equal to the footer height */
 }
 
+
 a {
     color: #d4af37; /* Gold accent color */
     text-decoration: none;
@@ -90,14 +91,14 @@ a:hover {
 
 /* Buttons */
 .btn-primary {
-    background-color: #d4af37; /* Gold button */
-    border-color: #d4af37;
-    color: #2c3e50; /* Dark text on gold button */
+    background-color: #d4af37; /* Maintain gold for primary actions */
+    color: #fff; /* Ensure text stands out */
 }
 
 .btn-primary:hover {
-    background-color: #b8942d; /* Slightly darker gold on hover */
-    border-color: #b8942d;
+    background-color: #b8942d; /* Darker shade for visual feedback */
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Slight shadow to lift the button on hover */
 }
 
 .btn-secondary {
@@ -322,4 +323,18 @@ main {
 .carousel-inner img {
     max-height: 400px;
     object-fit: cover;
+}
+.footer {
+    position: relative;
+}
+
+.footer .secure-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background-color: #d4af37;
+    padding: 0.3rem 1rem;
+    color: white;
+    border-radius: 5px;
+    font-size: 0.75rem;
 }

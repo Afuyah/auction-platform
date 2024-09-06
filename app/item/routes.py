@@ -3,10 +3,10 @@ import logging
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_required
 from werkzeug.utils import secure_filename
-from app.auction.models import Item,Category, Type
-from .forms import ItemDetailsForm, ItemSpecificationsForm, ItemFinancialForm, CategoryForm, TypeForm
+from app.auction.models import Item,Category, Type, Condition
+from .forms import ItemDetailsForm, ItemSpecificationsForm, ItemFinancialForm, CategoryForm, TypeForm, ConditionForm
 from app import db
-from .helpers import get_categories, get_types  # Ensure this import matches your actual helper module
+from .helpers import get_categories, get_types 
 
 item_bp = Blueprint('item', __name__)
 
@@ -40,12 +40,18 @@ def handle_photos(files):
 def add_category():
     form = CategoryForm()
     if form.validate_on_submit():
-        category = Category(name=form.name.data)
-        db.session.add(category)
-        db.session.commit()
-        flash('Category added successfully!', 'success')
-        return redirect(url_for('add_category'))
-    return render_template('add_category.html', form=form)
+        # Check if category already exists
+        existing_category = Category.query.filter_by(name=form.name.data).first()
+        if existing_category:
+            flash(f'Category "{form.name.data}" already exists.', 'warning')
+        else:
+            category = Category(name=form.name.data)
+            db.session.add(category)
+            db.session.commit()
+            flash('Category added successfully!', 'success')
+            return redirect(url_for('item.add_category'))
+    return render_template('items/add_category.html', form=form)
+
 
 @item_bp.route('/add-type', methods=['GET', 'POST'])
 def add_type():
@@ -57,6 +63,8 @@ def add_type():
         flash('Type added successfully!', 'success')
         return redirect(url_for('add_type'))
     return render_template('add_type.html', form=form)
+
+
 
 
 @item_bp.route('/add-item', methods=['GET', 'POST'])

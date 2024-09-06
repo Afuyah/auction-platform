@@ -11,13 +11,17 @@ class TypeForm(FlaskForm):
     name = StringField('Type Name', validators=[DataRequired(), Length(min=1, max=100)])
     submit = SubmitField('Add Type')
 
+class ConditionForm(FlaskForm):
+    name = StringField('Condition Name', validators=[DataRequired()])
+    submit = SubmitField('Add Condition')
+
 
 class ItemDetailsForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
     category = SelectField('Category', coerce=int, choices=[], validators=[DataRequired()])
     type = SelectField('Type', coerce=int, choices=[], validators=[DataRequired()])
-    condition = StringField('Condition', validators=[DataRequired()])
+    condition = SelectField('Condition', coerce=int, choices=[], validators=[DataRequired()])
     provenance_origin = StringField('Provenance Origin', validators=[Optional()])
     provenance_previous_ownership = TextAreaField('Provenance Previous Ownership', validators=[Optional()])
     authentication_details = TextAreaField('Authentication Details', validators=[Optional()])

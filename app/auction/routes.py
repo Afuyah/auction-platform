@@ -20,10 +20,10 @@ def index(view):
         else:
             # Fetch all auctions
             auctions = Auction.query.all()
-            return render_template('index.html', auctions=auctions)
+            return render_template('home.html', auctions=auctions)
     except Exception as e:
         flash(f'An error occurred: {str(e)}', 'danger')
-        return render_template('index.html', auctions=[])
+        return render_template('home.html', auctions=[])
 
 
 @auction_bp.route('/create', methods=['GET', 'POST'])

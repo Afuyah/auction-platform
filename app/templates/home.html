@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
-{% block title %}Ongoing Auctions{% endblock %}
+{% block title %}All Auctions{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
     <div class="text-center mb-5">
-        <h1 class="display-4 font-weight-bold text-primary">Welcome to the Auction Platform</h1>
+        <h1 class="display-4 font-weight-bold text-primary">Watch. Bid. Win – Live!</h1>
         <p class="lead text-muted">Bid on your favorite items and discover incredible deals!</p>
     </div>
 
@@ -39,8 +39,6 @@
         </div>
     {% endif %}
 </div>
-
-
 
 <!-- Featured Auctions Section -->
 <div class="container-fluid mt-5 py-5 bg-light">
@@ -76,6 +74,8 @@
         </div>
     </div>
 </div>
+
+
 {% endblock %}
 
 {% block extra_js %}
@@ -88,4 +88,8 @@
         });
     });
 </script>
+
+
+
+
 {% endblock %}

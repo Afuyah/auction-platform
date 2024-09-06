@@ -1,29 +1,42 @@
 {% extends "base.html" %}
-{% block title %}Ongoing Auctions{% endblock %}
+{% block title %}Live Auctions{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
     <div class="text-center mb-5">
-        <h1 class="display-4 font-weight-bold text-primary">Ongoing Auctions</h1>
-        <p class="lead text-muted">Bid on your favorite items and discover incredible deals!</p>
+        <h1 class="display-4 font-weight-bold text-primary">Feel the Rush, Win in Real Time.</h1>
+        <p class="lead text-muted">Step into the electrifying world of live auctions, where every second counts and every bid brings you closer to victory. The excitement is building, and the prize is just a click away. Don’t miss your chance to win exclusive treasures – bid live now and feel the rush!</p>
     </div>
 
     {% if auctions %}
-        <div class="row">
+        <div class="row g-4">
             {% for auction in auctions %}
-                <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100 border-0 shadow-lg rounded auction-card">
-                        <div class="card-img-container">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 auction-card border-0 rounded-lg shadow-lg">
+                        <div class="auction-image position-relative">
                             {% if auction.image_url %}
-                                <img src="{{ auction.image_url }}" class="card-img-top auction-img" alt="{{ auction.title }}">
+                                <img src="{{ auction.image_url }}" class="card-img-top rounded-top auction-img" alt="{{ auction.title }}">
                             {% else %}
-                                <img src="{{ url_for('static', filename='images/default_auction.jpg') }}" class="card-img-top auction-img" alt="Default auction image">
+                                <img src="{{ url_for('static', filename='images/default_auction.jpg') }}" class="card-img-top rounded-top auction-img" alt="Default auction image">
+                            {% endif %}
+                            <span class="badge bg-warning position-absolute top-0 start-0 m-3">Exclusive</span>
+                            {% if auction.is_limited_time %}
+                                <span class="badge bg-danger position-absolute top-0 end-0 m-3">Limited Time</span>
                             {% endif %}
                         </div>
-                        <div class="card-body text-center">
-                            <h5 class="card-title font-weight-bold text-primary">{{ auction.title }}</h5>
-                            <p class="card-text mb-3">Current Bid: <span class="text-success font-weight-bold">${{ auction.current_price }}</span></p>
-                            <a href="{{ url_for('auction.auction_detail', auction_id=auction.id) }}" class="btn btn-primary btn-lg btn-block rounded-pill shadow-sm">Enter The Room</a>
+                        <div class="card-body text-center p-4">
+                            <h5 class="card-title font-weight-bold text-dark">{{ auction.title }}</h5>
+                            <div class="timer-container mb-3">
+                                {% if auction.time_remaining %}
+                                    <p class="text-danger mb-0">Ends in: <span class="font-weight-bold" id="timer-{{ auction.id }}"></span></p>
+                                {% endif %}
+                            </div>
+                            <div class="current-bid mb-2">
+                                <p class="h6 text-muted mb-1">Current Bid:</p>
+                                <p class="h4 font-weight-bold text-success">${{ auction.current_price }}</p>
+                            </div>
+                            <p class="text-muted small">Competing with <span class="text-primary">{{ auction.num_bids }}</span> other bidders</p>
+                            <a href="{{ url_for('auction.auction_detail', auction_id=auction.id) }}" class="btn btn-outline-primary btn-lg btn-block rounded-pill shadow-sm">Place Your Bid</a>
                         </div>
                     </div>
                 </div>
@@ -31,9 +44,32 @@
         </div>
     {% else %}
         <div class="text-center">
-            <p class="text-muted lead">There are no ongoing auctions at the moment. Check back later for exciting opportunities!</p>
+            <p class="text-muted lead">There are no live auctions at the moment. Check back soon for exclusive opportunities!</p>
         </div>
     {% endif %}
-   
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Countdown timers for each auction
+        {% for auction in auctions %}
+        var countdown = new Date("{{ auction.time_remaining }}").getTime();
+        var x = setInterval(function() {
+            var now = new Date().getTime();
+            var distance = countdown - now;
+            if (distance > 0) {
+                var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                document.getElementById('timer-{{ auction.id }}').innerHTML = hours + "h " + minutes + "m " + seconds + "s";
+            } else {
+                clearInterval(x);
+                document.getElementById('timer-{{ auction.id }}').innerHTML = "Auction Ended";
+            }
+        }, 1000);
+        {% endfor %}
+    });
+</script>
 {% endblock %}
