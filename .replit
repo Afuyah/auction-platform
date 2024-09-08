@@ -1,4 +1,4 @@
-modules = ["python-3.12", "c-clang14", "cpp-clang14"]
+modules = ["c-clang14", "cpp-clang14", "nodejs-20", "python-3.12"]
 run = "python app.py"
 
 [nix]
@@ -6,6 +6,10 @@ channel = "stable-24_05"
 
 [deployment]
 run = ["sh", "-c", "python app.py"]
+
+[[ports]]
+localPort = 3000
+externalPort = 3000
 
 [[ports]]
 localPort = 5000

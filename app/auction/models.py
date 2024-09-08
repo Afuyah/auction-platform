@@ -14,7 +14,7 @@ class Auction(db.Model):
     end_time = db.Column(db.DateTime, nullable=False)
     status = db.Column(db.String(20), default='Pending')
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    is_featured = db.Column(db.Boolean, default=False)  # Add this line
+    is_featured = db.Column(db.Boolean, default=False)
 
     # Relationships
     user = db.relationship('User', back_populates='auctions')
@@ -24,34 +24,26 @@ class Auction(db.Model):
     def __repr__(self):
         return f'<Auction {self.title}>'
 
-
     @property
     def is_active(self):
         return self.status == 'Active' and self.end_time > datetime.utcnow()
-    @classmethod
-    def get_active_auctions(cls):
-        return cls.query.filter(
-            and_(
-                cls.status == 'Active',
-                cls.end_time > datetime.utcnow()
-            )
-        ).all()
-    
-
-    def activate(self):
-        if self.end_time > datetime.utcnow():
-            self.status = 'Active'
-        else:
-            raise ValueError("Cannot activate an auction that has already ended.")
-
-    def deactivate(self):
-        self.status = 'Inactive'
-        self.end_time = datetime.utcnow()
 
     @property
     def is_completed(self):
-        return datetime.utcnow() >= self.end_time
+        return datetime.utcnow() >= self.end_time and self.status != 'Inactive'
 
+    def activate(self):
+        if self.is_active:
+            raise ValueError("Auction is already active.")
+        if self.end_time <= datetime.utcnow():
+            raise ValueError("Cannot activate an auction that has already ended.")
+        self.status = 'Active'
+
+    def deactivate(self):
+        if not self.is_active:
+            raise ValueError("Auction is not active and cannot be deactivated.")
+        self.status = 'Inactive'
+        self.end_time = datetime.utcnow()
 
     
 
@@ -61,34 +53,22 @@ class Item(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    
-    # Foreign keys to Type and Category tables
     type_id = db.Column(db.Integer, db.ForeignKey('types.id'), nullable=True)
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=True)
     condition_id = db.Column(db.Integer, db.ForeignKey('conditions.id'), nullable=True)
-    
-    # Additional optional fields
-    condition = db.Column(db.String(50), nullable=True)  
-    provenance_origin = db.Column(db.String(100), nullable=True)  
-    provenance_previous_ownership = db.Column(db.Text, nullable=True)  
-    authentication_details = db.Column(db.Text, nullable=True)  
-    certificates = db.Column(db.Text, nullable=True)  
-    dimensions = db.Column(db.String(100), nullable=True)  
-    material = db.Column(db.String(100), nullable=True)  
-    rarity = db.Column(db.String(100), nullable=True)  
-    edition = db.Column(db.String(100), nullable=True)  
-    
-    # Financial fields
+    condition = db.Column(db.String(50), nullable=True)
+    provenance_origin = db.Column(db.String(100), nullable=True)
+    provenance_previous_ownership = db.Column(db.Text, nullable=True)
+    authentication_details = db.Column(db.Text, nullable=True)
+    certificates = db.Column(db.Text, nullable=True)
+    dimensions = db.Column(db.String(100), nullable=True)
+    material = db.Column(db.String(100), nullable=True)
+    rarity = db.Column(db.String(100), nullable=True)
+    edition = db.Column(db.String(100), nullable=True)
     starting_bid = db.Column(db.Numeric(10, 2), nullable=False)
     reserve_price = db.Column(db.Numeric(10, 2), nullable=True)
-    
-    # Foreign key to Auction
     auction_id = db.Column(db.Integer, db.ForeignKey('auctions.id'), nullable=True)
-    
-    # JSON field for storing multiple photo links
-    photos = db.Column(db.JSON, nullable=True)  
-    
-    # Item status (Pending Verification by default)
+    photos = db.Column(db.JSON, nullable=True)
     status = db.Column(db.String(20), default='Pending Verification')
 
     # Relationships
@@ -96,10 +76,10 @@ class Item(db.Model):
     type = db.relationship('Type', back_populates='items')
     category = db.relationship('Category', back_populates='items')
     condition = db.relationship('Condition', back_populates='items')
-    
-    def __repr__(self):
-        return f'<Item {self.title}>'
 
+    def __repr__(self):
+        return (f'<Item id={self.id}, title="{self.title}", starting_bid={self.starting_bid}, '
+                f'status="{self.status}">')
 
 class Type(db.Model):
     __tablename__ = 'types'

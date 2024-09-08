@@ -24,7 +24,7 @@
                         <div class="card-body text-center">
                             <h5 class="card-title font-weight-bold text-primary">{{ auction.title }}</h5>
                             <p class="card-text mb-3">Current Bid: <span class="text-success font-weight-bold">${{ auction.current_price }}</span></p>
-                            <a href="{{ url_for('auction.auction_detail', auction_id=auction.id) }}" class="btn btn-primary btn-lg btn-block rounded-pill shadow-sm">Enter Live Room</a>
+                            <a href="{{ url_for('auction.auction_room', auction_id=auction.id) }}" class="btn btn-primary btn-lg btn-block rounded-pill shadow-sm">Enter Live Room</a>
                         </div>
                     </div>
                 </div>

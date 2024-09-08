@@ -2,20 +2,20 @@
 {% block title %}{{ auction.title }} - Exclusive Auction Hall{% endblock %}
 
 {% block content %}
-<div class="container-fluid auction-hall mt-3">
+<div class="container-fluid auction-hall mt-5">
     <!-- 3D Room-like Layout with Luxury Design -->
     <div class="auction-room shadow-lg rounded">
         <div class="stage d-flex flex-column align-items-center">
             <div class="row w-100">
                 <!-- Auction Item Image Section -->
-                <div class="col-md-6">
+                <div class="col-md-6 p-3">
                     <div class="product-card border-0 shadow-lg rounded-3d">
-                        <img src="{{ url_for('static', filename='images/default_auction.jpg') }}" class="card-img-top img-fluid rounded" alt="{{ auction.title }}">
+                        <img src="{{  url_for('static', filename='images/default_auction.jpg') }}" class="card-img-top img-fluid rounded" alt="{{ auction.title }}">
                     </div>
                 </div>
 
                 <!-- Auction Info Section -->
-                <div class="col-md-6">
+                <div class="col-md-6 p-3">
                     <h2 class="font-weight-bold auction-title">{{ auction.title }}</h2>
                     <p class="text-muted auction-description">{{ auction.description }}</p>
                     <div class="bid-details">
@@ -59,13 +59,13 @@
     .auction-hall {
         background-color: #121212;
         color: #ddd;
-        padding: 1.5rem;
+        padding: 3rem;
         min-height: 100vh;
     }
 
     .auction-room {
         background: linear-gradient(135deg, #1c1c1c 0%, #2a2a2a 100%);
-        padding: 1.5rem;
+        padding: 2rem;
         border-radius: 20px;
         perspective: 1500px;
     }

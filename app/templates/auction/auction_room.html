@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}{{ auction.title }} - Exclusive Auction Room{% endblock %}
+
+{% block content %}
+    <div id="auction-root">
+        <p>Loading auction room...</p>
+    </div>
+
+    <script>
+        // Ensure auction_id is correctly passed as a global variable
+        window.AUCTION_ID = {{ auction_id | tojson }};
+        console.log('Auction ID:', window.AUCTION_ID);  // Debugging line
+
+        // Inline script to check if the auction ID is set before React initializes
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Auction ID (inline check):', window.AUCTION_ID);
+        });
+    </script>
+    <script src="{{ url_for('static', filename='auction-rooms/static/js/main.dd1924a4.js') }}"></script>
+    <link href="{{ url_for('static', filename='auction-rooms/static/css/main.38bf0afc.css') }}" rel="stylesheet">
+{% endblock %}

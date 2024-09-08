@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request, send_from_directory
 from flask_login import login_required, current_user
 from .models import Auction, Item
 from app.bidding.models import Bid
@@ -6,8 +6,24 @@ from .forms import AuctionForm
 from app import db
 from sqlalchemy.sql import and_
 from datetime import datetime
-
+import os
+import logging
 auction_bp = Blueprint('auction', __name__)
+
+@auction_bp.route('/auction-room/<int:auction_id>')
+def auction_room(auction_id):
+    try:
+        # Fetch the auction object
+        auction = Auction.query.get_or_404(auction_id)
+        # Pass the auction ID to the template
+        return render_template('auction/auction_room.html', auction_id=auction_id, auction=auction)
+    except Exception as e:
+        # Log the error and flash a message to the user
+        logging.error(f'Error fetching auction {auction_id}: {str(e)}')
+        flash(f'An error occurred: {str(e)}', 'danger')
+        return redirect(url_for('auction.index'))
+
+
 
 @auction_bp.route('/', defaults={'view': 'all'})
 @auction_bp.route('/<view>')
