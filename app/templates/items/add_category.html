@@ -3,24 +3,89 @@
 
 {% block content %}
 <div class="container mt-4">
-    
-
-    <h2 class="mb-4">Add New Category</h2>
-    <form method="POST" action="">
+    <h2 class="mb-4 text-center display-4 font-weight-bold">Add New Category</h2>
+    <form method="POST" action="" class="p-4 shadow-sm rounded bg-light">
         {{ form.hidden_tag() }}
-        <div class="form-group mb-3">
-            {{ form.name.label(class="form-label") }}
-            {{ form.name(class="form-control") }}
+        
+        <div class="form-group mb-4">
+            {{ form.name.label(class="form-label fs-5") }}
+            {{ form.name(class="form-control form-control-lg") }}
             {% for error in form.name.errors %}
                 <div class="text-danger mt-2">{{ error }}</div>
             {% endfor %}
         </div>
-        <div class="d-flex justify-content-between mt-4">
-            <button type="submit" class="btn btn-primary">
-                <i class="fas fa-plus"></i> <!-- Optional icon -->
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <button type="submit" class="btn btn-primary btn-lg shadow-sm rounded-pill">
+                <i class="fas fa-plus me-2"></i> <!-- Optional icon -->
                 {{ form.submit.label.text }}
             </button>
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .container {
+        max-width: 900px;
+    }
+
+    .form-control-lg {
+        font-size: 1.25rem;
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+
+    .shadow-sm {
+        box-shadow: 0 .125rem .25rem rgba(0,0,0,.075) !important;
+    }
+
+    .rounded {
+        border-radius: .25rem !important;
+    }
+
+    .rounded-pill {
+        border-radius: 50rem !important;
+    }
+
+    .display-4 {
+        font-size: 2.5rem;
+        font-weight: 300;
+    }
+
+    .text-center {
+        text-align: center !important;
+    }
+
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+    }
+
+    .text-danger {
+        color: #dc3545 !important;
+    }
+</style>
 {% endblock %}

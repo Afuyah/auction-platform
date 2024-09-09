@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Items for Auction</h1>
+<div class="row">
+    {% for item in items %}
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <img src="{{ item.photos[0] if item.photos else url_for('static', filename='images/default_item.jpg') }}" class="card-img-top" alt="{{ item.title }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.title }}</h5>
+                    <p class="card-text">{{ item.description }}</p>
+                    <p class="card-text">Starting Bid: {{ item.starting_bid }}</p>
+                    {% if item.end_time %}
+                        <p class="card-text">Ends at: {{ item.end_time }}</p>
+                    {% endif %}
+                    <a href="{{ url_for('item.place_bid', item_id=item.id) }}" class="btn btn-primary">Place Bid</a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

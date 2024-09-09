@@ -28,3 +28,20 @@ class Bid(db.Model):
         # Get the highest bid for this auction
         highest_bid = db.session.query(db.func.max(Bid.amount)).filter_by(auction_id=self.auction_id).scalar()
         return self.amount == highest_bid
+
+
+class AuditLog(db.Model):
+    __tablename__ = 'audit_logs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    action_type = db.Column(db.String(50))
+    description = db.Column(db.Text)
+
+    user = db.relationship('User', backref='audit_logs')
+
+    def __init__(self, user_id, action_type, description):
+        self.user_id = user_id
+        self.action_type = action_type
+        self.description = description

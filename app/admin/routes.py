@@ -137,12 +137,24 @@ def admin_dashboard():
         return redirect(url_for('admin.admin_dashboard'))
 
 
+
+
 @admin_bp.route('/items/verify/<int:item_id>', methods=['POST'])
 @login_required
 @role_required('Admin')
 def verify_item(item_id):
     """Route to verify an item added by a user."""
     item = Item.query.get_or_404(item_id)
+    
+    if request.method == 'POST':
+        end_time = request.form.get('end_time')
+        if end_time:
+            try:
+                item.end_time = datetime.strptime(end_time, '%Y-%m-%d %H:%M:%S')
+            except ValueError:
+                flash('Invalid date format. Use YYYY-MM-DD HH:MM:SS.', 'danger')
+                return redirect(url_for('admin.admin_dashboard'))
+
     if item.status == 'Pending Verification':
         item.status = 'Verified'
         db.session.commit()
@@ -150,6 +162,7 @@ def verify_item(item_id):
         flash('Item verified successfully.', 'success')
     else:
         flash('Item is already verified or does not require verification.', 'warning')
+    
     return redirect(url_for('admin.admin_dashboard'))
 
 @admin_bp.route('/items/reject/<int:item_id>', methods=['POST'])
@@ -166,6 +179,7 @@ def reject_item(item_id):
     else:
         flash('Item is already verified or does not require rejection.', 'warning')
     return redirect(url_for('admin.admin_dashboard'))
+
 
 
 

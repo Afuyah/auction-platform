@@ -25,21 +25,30 @@ def auction_room(auction_id):
 
 
 
-@auction_bp.route('/', defaults={'view': 'all'})
-@auction_bp.route('/<view>')
-def index(view):
+@auction_bp.route('/')
+def index():
     try:
-        if view == 'featured':
-            # Fetch only featured auctions
-            featured_auctions = Auction.query.filter_by(is_featured=True).all()
-            return render_template('featured_auctions.html', featured_auctions=featured_auctions)
-        else:
-            # Fetch all auctions
-            auctions = Auction.query.all()
-            return render_template('home.html', auctions=auctions)
+        # Fetch all active auctions (status = 'Active' and end_time > current time)
+        auctions = Auction.query.filter(
+            Auction.status == 'Active', 
+            Auction.end_time > datetime.utcnow()
+        ).all()
+
+        # Fetch featured auctions
+        featured_auctions = Auction.query.filter(
+            Auction.is_featured == True, 
+            Auction.status == 'Active', 
+            Auction.end_time > datetime.utcnow()
+        ).all()
+
+        return render_template('home.html', auctions=auctions, featured_auctions=featured_auctions)
+
     except Exception as e:
         flash(f'An error occurred: {str(e)}', 'danger')
-        return render_template('home.html', auctions=[])
+        return render_template('home.html', auctions=[], featured_auctions=[])
+
+
+
 
 
 @auction_bp.route('/create', methods=['GET', 'POST'])
@@ -158,14 +167,4 @@ def ongoing_auctions():
         )
     ).all()
     return render_template('auction/ongoing_auctions.html', auctions=auctions)
-
-@auction_bp.route('/featured')
-def featured_auctions():
-    try:
-        # Fetch all featured auctions
-        featured_auctions = Auction.query.filter_by(is_featured=True).all()
-        return render_template('index.html', featured_auctions=featured_auctions)
-    except Exception as e:
-        flash(f'An error occurred: {str(e)}', 'danger')
-        return render_template('index.html', featured_auctions=[])
 

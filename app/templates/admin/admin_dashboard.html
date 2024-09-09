@@ -14,21 +14,27 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#permissions">
-                            Permissions
+                        <a class="nav-link" href="{{ url_for('item.add_category')}}">
+                            Categories
                         </a>
                     </li>
 
                    
                                     
                     <li class="nav-item">
-                        <a class="nav-link" href="#items">
-                            Items
+                        <a class="nav-link" href="{{ url_for('item.add_type')}}">
+                            type
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#auctions">
-                            Auctions
+                        <a class="nav-link" href="{{ url_for('item.add_condition')}} ">
+                            conditions
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('item.add_item')}} ">
+                            Item
                         </a>
                     </li>
                 </ul>
@@ -139,77 +145,78 @@
 {% endfor %}
 
 
-            <!-- Items Section -->
-            <section id="items" class="mb-5">
-                <h2>Items Pending Verification</h2>
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Description</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in pending_items %}
-                                <tr>
-                                    <td>{{ item.title }}</td>
-                                    <td>{{ item.description }}</td>
-                                    <td>
-                                        <form action="{{ url_for('admin.verify_item', item_id=item.id) }}" method="POST" style="display: inline;">
-                                            <button class="btn btn-success btn-sm">Verify</button>
-                                        </form>
-                                        <form action="{{ url_for('admin.reject_item', item_id=item.id) }}" method="POST" style="display: inline;">
-                                            <button class="btn btn-danger btn-sm">Reject</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+          <!-- Items Section -->
+<section id="items" class="mb-5">
+    <h2>Items Pending Verification</h2>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in pending_items %}
+                    <tr>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.description }}</td>
+                        <td>
+                            <form action="{{ url_for('admin.verify_item', item_id=item.id) }}" method="POST" style="display: inline;">
+                                <input type="datetime-local" name="end_time" class="form-control" placeholder="End Time">
+                                <button class="btn btn-success btn-sm">Verify</button>
+                            </form>
+                            <form action="{{ url_for('admin.reject_item', item_id=item.id) }}" method="POST" style="display: inline;">
+                                <button class="btn btn-danger btn-sm">Reject</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-                <h2>Verified Items</h2>
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in verified_items %}
-                                <tr>
-                                    <td>{{ item.title }}</td>
-                                    <td>{{ item.description }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+    <h2>Verified Items</h2>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in verified_items %}
+                    <tr>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.description }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 
-                <h2>Rejected Items</h2>
-                <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in rejected_items %}
-                                <tr>
-                                    <td>{{ item.title }}</td>
-                                    <td>{{ item.description }}</td>
-                                </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+    <h2>Rejected Items</h2>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in rejected_items %}
+                    <tr>
+                        <td>{{ item.title }}</td>
+                        <td>{{ item.description }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
 
             <!-- Auctions Section -->
             <section id="auctions">

@@ -142,53 +142,87 @@ h6 {
     font-size: 1rem;
 }
 
-/* Custom Cards for Auction Items */
-.card {
-    border: 1px solid #e5e5e5;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
+  .text-shadow {
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
 
-.card-header {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e5e5e5;
-    font-family: 'Georgia', serif;
-    font-weight: bold;
-}
+    .auction-card {
+        border: 1px solid #f0f0f0;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+    }
 
-.card-body {
-    background-color: #ffffff;
-}
+    .auction-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    }
 
-.card-footer {
-    background-color: #f8f9fa;
-    border-top: 1px solid #e5e5e5;
-    text-align: right;
-}
+    .card-img-container {
+        position: relative;
+    }
 
-/* Auction Specific Styles */
-.auction-card {
-    transition: transform 0.3s, box-shadow 0.3s;
-}
+    .auction-img {
+        border-radius: 15px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
 
-.auction-card:hover {
-    transform: scale(1.03);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-}
+    .auction-img:hover {
+        transform: scale(1.1);
+    }
 
-.auction-img {
-    transition: transform 0.3s;
-}
+    .badge {
+        font-size: 1rem;
+        font-family: 'Arial', sans-serif;
+        border-radius: 12px;
+    }
 
-.auction-card:hover .auction-img {
-    transform: scale(1.1);
-}
+    .btn-outline-primary {
+        color: #004085;
+        border-color: #004085;
+        transition: background-color 0.3s ease, color 0.3s ease;
+    }
 
-.card-img-container {
-    overflow: hidden;
-    border-radius: 10px;
-}
+    .btn-outline-primary:hover {
+        background-color: #004085;
+        color: #fff;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    }
 
+    .card-title {
+        font-size: 1.5rem;
+        font-family: 'Playfair Display', serif;
+        color: #00274d;
+    }
+
+    .card-text {
+        font-size: 1.2rem;
+        color: #333;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .card-title {
+            font-size: 1.25rem;
+        }
+
+        .card-text {
+            font-size: 1rem;
+        }
+
+        .btn-lg {
+            font-size: 0.9rem;
+            padding: 10px 25px;
+        }
+
+        .card-img-container {
+            margin-bottom: 10px;
+        }
+
+        .auction-img {
+            max-height: 200px;
+        }
+    }
 /* Featured Auctions Section */
 .carousel-item img {
     object-fit: cover;
@@ -337,4 +371,73 @@ main {
     color: white;
     border-radius: 5px;
     font-size: 0.75rem;
+}
+ /* Background gradient */
+.bg-gradient-dark {
+    background: linear-gradient(135deg, #343a40 10%, #212529 100%);
+}
+
+/* Text shadow for glowing effect */
+.text-glow {
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+}
+
+.text-glow-primary {
+    text-shadow: 0 0 15px rgba(0, 123, 255, 0.8);
+}
+
+/* Carousel item transition and styling */
+.carousel-item {
+    transition: transform 0.8s ease-in-out;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 20px;
+    border-radius: 20px;
+}
+
+/* Image scaling effect */
+.auction-img {
+    transition: transform 0.5s ease;
+}
+
+.auction-img:hover {
+    transform: scale(1.05);
+}
+
+/* Badge styling */
+.badge {
+    font-size: 1rem;
+    font-family: 'Arial', sans-serif;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+    .carousel-item {
+        text-align: center;
+    }
+
+    .carousel-caption {
+        padding: 15px;
+        font-size: 0.9rem;
+    }
+
+    .auction-img {
+        max-height: 300px;
+    }
+
+    h3 {
+        font-size: 1.8rem;
+    }
+}
+
+/* Button hover effects */
+.btn-outline-primary:hover {
+    background-color: #004085;
+    color: #fff;
+    box-shadow: 0 5px 20px rgba(0, 123, 255, 0.5);
+}
+
+/* Carousel control icons */
+.carousel-control-prev-icon,
+.carousel-control-next-icon {
+    filter: brightness(0) invert(1);
 }

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Place Bid for {{ item.title }}</h1>
+<p>{{ item.description }}</p>
+<p>Starting Bid: {{ item.starting_bid }}</p>
+{% if item.end_time %}
+    <p class="text-muted">Auction ends in: <span id="countdown" data-end-time="{{ item.end_time.isoformat() }}"></span></p>
+{% endif %}
+<form method="post">
+    <div class="form-group">
+        <label for="bid_amount">Bid Amount</label>
+        <input type="number" step="5" name="bid_amount" id="bid_amount" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Place Bid</button>
+</form>
+{% endblock %}

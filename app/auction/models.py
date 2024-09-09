@@ -70,7 +70,7 @@ class Item(db.Model):
     auction_id = db.Column(db.Integer, db.ForeignKey('auctions.id'), nullable=True)
     photos = db.Column(db.JSON, nullable=True)
     status = db.Column(db.String(20), default='Pending Verification')
-
+    end_time = db.Column(db.DateTime, nullable=True)
     # Relationships
     auction = db.relationship('Auction', back_populates='items')
     type = db.relationship('Type', back_populates='items')

@@ -3,93 +3,193 @@
 {% block title %}All Auctions{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<!-- Main Content Section -->
+<div class="container mt-5 py-5">
     <div class="text-center mb-5">
-        <h1 class="display-4 font-weight-bold text-primary">Watch. Bid. Win – Live!</h1>
-        <p class="lead text-muted">Bid on your favorite items and discover incredible deals!</p>
+        <h1 class="display-3 font-weight-bold text-primary text-shadow">Discover & Bid on Live Auctions</h1>
+        <p class="lead text-muted">Immerse yourself in our curated selection of premium auctions.</p>
     </div>
 
     {% if auctions %}
         <div class="row">
             {% for auction in auctions %}
-                <div class="col-md-6 col-lg-4 mb-4">
+                <div class="col-md-12 col-lg-4 mb-4">
                     <div class="card h-100 border-0 shadow-lg rounded auction-card">
-                        <div class="card-img-container">
+                        <div class="card-img-container position-relative">
                             {% if auction.image_url %}
                                 <img src="{{ auction.image_url }}" class="card-img-top auction-img" alt="{{ auction.title }}">
                             {% else %}
                                 <img src="{{ url_for('static', filename='images/default_auction.jpg') }}" class="card-img-top auction-img" alt="Default auction image">
                             {% endif %}
+                            {% if auction.is_active %}
+                                <div class="badge bg-success text-light position-absolute top-0 start-0 m-3 px-3 py-2 fs-6">Live Now</div>
+                            {% endif %}
                         </div>
                         <div class="card-body text-center">
                             <h5 class="card-title font-weight-bold text-primary">{{ auction.title }}</h5>
                             <p class="card-text mb-3">Current Bid: <span class="text-success font-weight-bold">${{ auction.current_price }}</span></p>
-                            <a href="{{ url_for('auction.auction_room', auction_id=auction.id) }}" class="btn btn-primary btn-lg btn-block rounded-pill shadow-sm">Enter Live Room</a>
+                            <a href="{{ url_for('auction.auction_room', auction_id=auction.id) }}" class="btn btn-primary btn-lg rounded-pill shadow-sm">Enter Live Room</a>
                         </div>
                     </div>
                 </div>
             {% endfor %}
         </div>
         <div class="text-center mt-4">
-            <a href="{{ url_for('auction.ongoing_auctions') }}" class="btn btn-outline-primary btn-lg rounded-pill">View All Live Auctions</a>
+            <a href="{{ url_for('auction.ongoing_auctions') }}" class="btn btn-outline-primary btn-lg rounded-pill shadow-sm">View All Live Auctions</a>
         </div>
     {% else %}
         <div class="text-center">
-            <p class="text-muted lead">There are no ongoing auctions at the moment. Check back later for exciting opportunities!</p>
+            <p class="text-muted lead">There are no ongoing auctions at the moment. Please check back later for exciting opportunities!</p>
         </div>
     {% endif %}
 </div>
 
+<style>
+    .row {
+        display: flex;
+        overflow-x: auto; /* Allow horizontal scrolling on small screens */
+    }
+
+    .col-md-12 {
+        flex: 0 0 auto;
+    }
+
+    /* Large screens */
+    @media (min-width: 992px) {
+        .row {
+            display: flex;
+            flex-wrap: nowrap; /* Ensure items stay in one row */
+        }
+        .col-lg-4 {
+            flex: 0 0 33.33%; /* 3 items per row */
+        }
+    }
+
+    /* Small screens */
+    @media (max-width: 991px) {
+        .col-md-12 {
+            flex: 0 0 100%; /* 1 item per row */
+        }
+    }
+</style>
+
+
+
+
 <!-- Featured Auctions Section -->
-<div class="container-fluid mt-5 py-5 bg-light">
+<div class="container-fluid mt-5 py-5 bg-gradient-dark text-light">
     <div class="container">
-        <h2 class="text-center font-weight-bold text-primary mb-4">Featured Auctions</h2>
-        <div id="featuredAuctionsCarousel" class="carousel slide" data-bs-ride="carousel">
+        <h2 class="text-center display-4 text-uppercase font-weight-bold text-glow mb-5">Exclusive Featured Auctions</h2>
+        <div id="featuredAuctionsCarousel" class="carousel slide mx-auto shadow-lg" data-bs-ride="carousel" style="max-width: 1400px;">
             <div class="carousel-inner">
                 {% for auction in featured_auctions %}
                     <div class="carousel-item {% if loop.first %}active{% endif %}">
-                        <div class="row align-items-center">
-                            <div class="col-md-6 mb-4 mb-md-0">
-                                <img src="{{ auction.image_url or url_for('static', filename='images/default_auction.jpg') }}" class="d-block w-100 rounded shadow-lg" alt="{{ auction.title }}">
+                        <div class="row align-items-center gx-5">
+                            <!-- Image Section -->
+                            <div class="col-12 col-md-6 mb-4 mb-md-0 position-relative">
+                                <img src="{{ auction.image_url or url_for('static', filename='images/default_auction.jpg') }}" class="d-block w-100 rounded shadow-lg auction-img" alt="{{ auction.title }}">
+                                <!-- Badge indicating auction status -->
+                                <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-3 px-3 py-2 fs-5">Ending Soon</span>
                             </div>
-                            <div class="col-md-6">
-                                <div class="carousel-caption d-none d-md-block">
-                                    <h3 class="text-primary font-weight-bold">{{ auction.title }}</h3>
-                                    <p class="text-dark mb-3">Current Bid: <span class="font-weight-bold">${{ auction.current_price }}</span></p>
-                                    <a href="{{ url_for('auction.auction_detail', auction_id=auction.id) }}" class="btn btn-primary btn-lg rounded-pill shadow-sm">Bid Now</a>
+                            <!-- Text Section -->
+                            <div class="col-12 col-md-6 text-center text-md-left px-4">
+                                <div class="carousel-caption d-md-block bg-gradient-light text-dark rounded p-4">
+                                    <h3 class="display-6 text-uppercase font-weight-bold text-glow-primary">{{ auction.title }}</h3>
+                                    <p class="lead">Current Bid: <span class="font-weight-bold text-success">${{ auction.current_price }}</span></p>
+                                    <!-- Real-time countdown -->
+                                    <p class="small text-muted">Auction ends in <span id="countdown-{{ auction.id }}" class="text-danger" data-end-time="{{ auction.end_time.isoformat() }}"></span></p>
+                                    <a href="{{ url_for('auction.auction_room', auction_id=auction.id) }}" class="btn btn-outline-primary btn-lg rounded-pill mt-3">Place Your Bid</a>
                                 </div>
                             </div>
                         </div>
                     </div>
                 {% endfor %}
             </div>
-            <a class="carousel-control-prev" href="#featuredAuctionsCarousel" role="button" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </a>
-            <a class="carousel-control-next" href="#featuredAuctionsCarousel" role="button" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </a>
+           
         </div>
     </div>
 </div>
 
 
-{% endblock %}
+ <div class="container mt-5 py-5">
+        <h2 class="text-center display-4 font-weight-bold text-primary">Latest Auction Items</h2>
+        <p class="text-center text-muted">Check out our most recent auction items.</p>
+        <div class="row">
+            {% for item in items %}
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 border-0 shadow-lg rounded">
+                        <div class="card-img-container position-relative">
+                            {% if item.photos %}
+                                <img src="{{ url_for('static', filename='images/auc/' ~ item.photos[0]) }}" class="card-img-top" alt="{{ item.title }}">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='images/default_item.jpg') }}" class="card-img-top" alt="Default item image">
+                            {% endif %}
+                        </div>
+                        <div class="card-body text-center">
+                            <h5 class="card-title font-weight-bold">{{ item.title }}</h5>
+                            <p class="card-text mb-3">Starting Bid: <span class="text-success font-weight-bold">${{ item.starting_bid }}</span></p>
+                            <a href="{{ url_for('item.place_bid', item_id=item.id) }}" class="btn btn-primary btn-lg rounded-pill shadow-sm">Place Your Bid</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('item.display_items') }}" class="btn btn-outline-primary btn-lg rounded-pill shadow-sm">View All Items</a>
+        </div>
+    </div>
 
-{% block extra_js %}
+
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var myCarousel = document.querySelector('#featuredAuctionsCarousel');
-        var carousel = new bootstrap.Carousel(myCarousel, {
-            interval: 5000,
-            pause: 'hover'
-        });
+  document.addEventListener('DOMContentLoaded', function() {
+    var auctionEndTimes = document.querySelectorAll('[id^="countdown-"]');
+
+    auctionEndTimes.forEach(function(countdownElement) {
+        var endTime = new Date(countdownElement.getAttribute('data-end-time')).getTime();
+
+        function updateCountdown() {
+            var now = new Date().getTime();
+            var timeLeft = endTime - now;
+
+            if (timeLeft > 0) {
+                var hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                var minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                var seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                countdownElement.innerHTML = `${hours}h ${minutes}m ${seconds}s`;
+            } else {
+                countdownElement.innerHTML = "Auction Ended";
+                // Optionally, you can disable the "Place Your Bid" button
+                countdownElement.closest('.carousel-caption').querySelector('a').classList.add('disabled');
+            }
+        }
+
+        // Initial countdown update
+        updateCountdown();
+
+        // Update countdown every second
+        setInterval(updateCountdown, 1000);
     });
+
+    // Initialize Bootstrap Carousel
+    var myCarousel = document.querySelector('#featuredAuctionsCarousel');
+    var carousel = new bootstrap.Carousel(myCarousel, {
+        interval: 7000,
+        pause: 'hover',
+        ride: 'carousel',
+        touch: true
+    });
+
+    // Optional: Add keyboard navigation support
+    myCarousel.addEventListener('keydown', function(event) {
+        if (event.key === 'ArrowLeft') {
+            carousel.prev();
+        } else if (event.key === 'ArrowRight') {
+            carousel.next();
+        }
+    });
+});
 </script>
-
-
 
 
 {% endblock %}

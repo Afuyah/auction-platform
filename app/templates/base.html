@@ -42,57 +42,56 @@
 </head>
 <body>
    
-
     <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-    <a class="navbar-brand" href="{{ url_for('auction.index') }}">BHA Live</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-            {% if current_user.is_authenticated %}
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('auction.index') }}">Home</a>
-            </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('user.dashboard') }}">Dashboard</a>
-                </lMy Dashboardi>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('item.add_item') }}">Add Item</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('user.notifications') }}">Notifications</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
-                </li>
-            {% else %}
-            
-            <li class="nav-item">
-                <a class="nav-link" href="{{ url_for('auction.index') }}">Home</a>
-            </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
-                </li>
-            {% endif %}
-            <!-- Search Bar -->
-            <li class="nav-item">
-                <form class="d-flex ms-3" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-primary" type="submit">Search</button>
-                </form>
-            </li>
-        </ul>
-    </div>
-</nav>
-
+    <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm fixed-top">
+       
+            <a class="navbar-brand fw-bold" href="{{ url_for('auction.index') }}">BHA Live</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auction.index') }}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('user.dashboard') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('item.add_item') }}">Add Item</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('user.notifications') }}">Notifications</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auction.index') }}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                        </li>
+                    {% endif %}
+                    <!-- Search Bar -->
+                    <li class="nav-item ms-3">
+                        <form class="d-flex" role="search">
+                            <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
+                            <button class="btn btn-outline-primary" type="submit">Search</button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        
+    </nav>
 
     <!-- Main Content -->
-    <div class="container mt-4">
+    <div class="container mt-5 pt-4">
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
                 {% for category, message in messages %}
@@ -107,22 +106,21 @@
         {% block content %}{% endblock %}
     </div>
 
-   <footer class="footer bg-light text-center py-3">
-    <div class="container">
-        <span class="text-muted">&copy; 2024 Auction Platform. All rights reserved.</span>
-        <ul class="list-inline mt-2">
-            <li class="list-inline-item"><a href="#" class="text-decoration-none">Terms of Service</a></li>
-            <li class="list-inline-item"><a href="#" class="text-decoration-none">Privacy Policy</a></li>
-            <li class="list-inline-item"><a href="#" class="text-decoration-none">Contact Us</a></li>
-        </ul>
-    </div>
-</footer>
-    
+    <!-- Footer -->
+    <footer class="footer bg-light text-center py-3 mt-5">
+        <div class="container">
+            <span class="text-muted">&copy; 2024 Auction Platform. All rights reserved.</span>
+            <ul class="list-inline mt-2">
+                <li class="list-inline-item"><a href="#" class="text-decoration-none">Terms of Service</a></li>
+                <li class="list-inline-item"><a href="#" class="text-decoration-none">Privacy Policy</a></li>
+                <li class="list-inline-item"><a href="#" class="text-decoration-none">Contact Us</a></li>
+            </ul>
+        </div>
+    </footer>
     
     <!-- Scripts -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
     {% block extra_js %}{% endblock %}
-   
 </body>
 </html>

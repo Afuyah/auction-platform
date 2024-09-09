@@ -1,38 +1,80 @@
 {% extends "base.html" %}
 {% block title %}Login{% endblock %}
+
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm rounded">
-                <div class="card-header bg-primary text-white text-center">
+            <div class="card border-0 shadow-lg rounded">
+                <div class="card-header bg-primary text-white text-center rounded-top">
                     <h3 class="card-title mb-0">Login</h3>
                 </div>
                 <div class="card-body">
                     <form method="POST" action="{{ url_for('auth.login') }}">
                         {{ form.hidden_tag() }}
-                        <div class="form-group mb-3">
+                        <div class="form-group mb-4">
                             {{ form.username.label(class="form-label") }}
-                            {{ form.username(class="form-control") }}
+                            {{ form.username(class="form-control form-control-lg") }}
+                            {% for error in form.username.errors %}
+                                <div class="text-danger mt-2">{{ error }}</div>
+                            {% endfor %}
                         </div>
-                        <div class="form-group mb-3">
+                        <div class="form-group mb-4">
                             {{ form.password.label(class="form-label") }}
-                            {{ form.password(class="form-control") }}
+                            {{ form.password(class="form-control form-control-lg") }}
+                            {% for error in form.password.errors %}
+                                <div class="text-danger mt-2">{{ error }}</div>
+                            {% endfor %}
                         </div>
-                        <div class="form-group mb-3 form-check">
+                        <div class="form-group mb-4 form-check">
                             {{ form.remember_me(class="form-check-input") }}
                             {{ form.remember_me.label(class="form-check-label") }}
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
+                        <button type="submit" class="btn btn-primary btn-lg w-100">Login</button>
                     </form>
                 </div>
                 <div class="card-footer text-center">
-                    <p class="mb-0">Don't have an account? <a href="{{ url_for('auth.register') }}">Register here</a></p>
+                    <p class="mb-0">Don't have an account? <a href="{{ url_for('auth.register') }}" class="text-primary">Register here</a></p>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<style>
+    .card {
+        border-radius: 0.75rem; /* Enhanced border radius */
+    }
 
+    .card-header {
+        border-radius: 0.75rem 0.75rem 0 0; /* Rounded top corners */
+        padding: 1.5rem; /* Enhanced padding */
+    }
+
+    .card-footer {
+        border-radius: 0 0 0.75rem 0.75rem; /* Rounded bottom corners */
+        padding: 1rem;
+        background: #f8f9fa; /* Subtle background color */
+    }
+
+    .form-control-lg {
+        font-size: 1.1rem; /* Larger input text */
+        padding: 0.75rem; /* Increased padding */
+    }
+
+    .form-check-label {
+        font-size: 0.9rem; /* Slightly smaller font size for the label */
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+</style>
 {% endblock %}

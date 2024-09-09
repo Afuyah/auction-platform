@@ -1,8 +1,8 @@
 """initial migration
 
-Revision ID: 8e6421d773a8
+Revision ID: 4596909929ad
 Revises: 
-Create Date: 2024-09-08 07:40:45.793757
+Create Date: 2024-09-09 04:49:32.343347
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '8e6421d773a8'
+revision = '4596909929ad'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -90,6 +90,15 @@ def upgrade():
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
+    op.create_table('audit_logs',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.Column('user_id', sa.Integer(), nullable=True),
+    sa.Column('action_type', sa.String(length=50), nullable=True),
+    sa.Column('description', sa.Text(), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('role_permissions',
     sa.Column('role_id', sa.Integer(), nullable=False),
     sa.Column('permission_id', sa.Integer(), nullable=False),
@@ -141,6 +150,7 @@ def upgrade():
     sa.Column('auction_id', sa.Integer(), nullable=True),
     sa.Column('photos', sa.JSON(), nullable=True),
     sa.Column('status', sa.String(length=20), nullable=True),
+    sa.Column('end_time', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['auction_id'], ['auctions.id'], ),
     sa.ForeignKeyConstraint(['category_id'], ['categories.id'], ),
     sa.ForeignKeyConstraint(['condition_id'], ['conditions.id'], ),
@@ -160,6 +170,7 @@ def downgrade():
     op.drop_table('bids')
     op.drop_table('user_roles')
     op.drop_table('role_permissions')
+    op.drop_table('audit_logs')
     op.drop_table('auctions')
     with op.batch_alter_table('users', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_users_username'))

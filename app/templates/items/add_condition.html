@@ -1,13 +1,13 @@
 {% extends "base.html" %}
-{% block title %}Add Type{% endblock %}
+{% block title %}Add Condition{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-6 col-md-8">
             <div class="card p-4 shadow-lg rounded-lg">
-                <h2 class="text-center mb-4 display-4 font-weight-bold">Add New Type</h2>
-                <form method="POST" action="" class="needs-validation" novalidate>
+                <h2 class="text-center mb-4 display-4 font-weight-bold">Add New Condition</h2>
+                <form method="POST" action="">
                     {{ form.hidden_tag() }}
                     <div class="form-group mb-4">
                         {{ form.name.label(class="form-label fs-5 font-weight-bold") }}
@@ -35,13 +35,12 @@
     }
 
     .card {
-        background: #ffffff;
+        background: #f8f9fa;
         border: 1px solid #e2e6ea;
     }
 
     .form-control-lg {
         font-size: 1.25rem;
-        height: calc(1.5em + 0.75rem + 2px);
     }
 
     .form-label {
@@ -99,36 +98,5 @@
     .font-weight-bold {
         font-weight: 700;
     }
-
-    .needs-validation .form-control:invalid {
-        border-color: #dc3545;
-        box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
-    }
-
-    .needs-validation .form-control:valid {
-        border-color: #28a745;
-        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
-    }
 </style>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    // Basic form validation
-    (function() {
-        'use strict';
-        window.addEventListener('load', function() {
-            var forms = document.getElementsByClassName('needs-validation');
-            var validation = Array.prototype.filter.call(forms, function(form) {
-                form.addEventListener('submit', function(event) {
-                    if (form.checkValidity() === false) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                    }
-                    form.classList.add('was-validated');
-                }, false);
-            });
-        });
-    })();
-</script>
 {% endblock %}
