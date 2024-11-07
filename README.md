@@ -38,6 +38,7 @@ A **high-performance, real-time auction platform** designed for seamless live bi
 2. Set Up Virtual Environment:
 Navigate to the backend directory:
 
+'''bash
 cd backend/
 python3 -m venv venv
 source venv/bin/activate  # Linux/Mac
