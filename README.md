@@ -37,51 +37,50 @@ A **high-performance, real-time auction platform** designed for seamless live bi
 
 2. Set Up Virtual Environment:
 Navigate to the backend directory:
-
-'''bash
+```
 cd backend/
 python3 -m venv venv
 source venv/bin/activate  # Linux/Mac
 venv\Scripts\activate  # Windows
-
+```
 
 3. Install Dependencies:
-
+```
 pip install -r requirements.txt
 
-
+```
 4. Configure Database:
 Set up your database (PostgreSQL or SQLite) and configure the DATABASE_URI in the .env file.
 
 
 5. Run Flask Application:
-
+```
 flask run
-
+```
 
 
 Frontend Setup
 
 1. Navigate to the Frontend Directory:
-
+```
 cd frontend/
-
+```
 
 2. Install Dependencies:
-
+```
 npm install
-
+```
 
 3. Start the Application:
-
+```
 npm start
 
-
+```
 
 Payment Integration
 
 1. Set Up PayPal API:
-Obtain PayPal API credentials and configure the credentials in the .env file for secure payment processing.
+Obtain PayPal API credentials and configure them in the .env file for secure payment processing.
 
 
 2. Configure Webhooks:
@@ -95,34 +94,32 @@ Implement PayPal webhooks for payment status notifications.
 How to Contribute
 
 1. Fork the Repository:
-
 Click the "Fork" button at the top-right of the repository page.
 
 
-
 2. Clone Your Fork:
-
-git clone https://github.com/yourusername/auction-platform.git
-
+```
+git clone https://github.com/afuyah/auction-platform.git
+```
 
 3. Create a Feature Branch:
-
+```
 git checkout -b feature-branch
-
+```
 
 4. Make Changes:
 Implement new features or fix bugs.
 
 
 5. Commit Changes:
-
+```
 git commit -am 'Add new feature'
-
+```
 
 6. Push to Your Fork:
-
+```
 git push origin feature-branch
-
+```
 
 7. Open a Pull Request:
 Submit a pull request describing the changes made.
@@ -143,3 +140,4 @@ Contact
 
 For any inquiries, suggestions, or collaboration, feel free to reach out via email:
 afuya.b@gmail.com.
+---
